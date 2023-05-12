@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DeepParameters {
-    internal static class SepsInfo {
+    internal static class StepsInfo {
         public static string Step1 { get; } = "Загрузка данных из файла (excel, csv) и выбор аварии для исследования";
     }
 }

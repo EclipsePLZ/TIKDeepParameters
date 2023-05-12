@@ -69,8 +69,9 @@
             // OpenFile
             // 
             this.OpenFile.Name = "OpenFile";
-            this.OpenFile.Size = new System.Drawing.Size(121, 22);
+            this.OpenFile.Size = new System.Drawing.Size(180, 22);
             this.OpenFile.Text = "Открыть";
+            this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
             // 
             // ExitApp
             // 
