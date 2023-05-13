@@ -149,6 +149,7 @@
             this.acceptFaultButton.TabIndex = 7;
             this.acceptFaultButton.Text = "Подтвердить";
             this.acceptFaultButton.UseVisualStyleBackColor = true;
+            this.acceptFaultButton.Click += new System.EventHandler(this.acceptFaultButton_Click);
             // 
             // accidentsData
             // 

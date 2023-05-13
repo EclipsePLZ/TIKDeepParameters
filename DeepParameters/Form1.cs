@@ -12,8 +12,11 @@ using System.Windows.Forms;
 
 namespace DeepParameters {
     public partial class MainFrom : Form {
-        IFileService fileService;
-        IDialogService dialogService = new DefaultDialogService();
+        private IFileService fileService;
+        private IDialogService dialogService = new DefaultDialogService();
+
+        private List<double> AccidentValues { get; set; } = new List<double>();
+        private string AccidentHeader { get; set; }
 
         public MainFrom() {
             InitializeComponent();
@@ -89,6 +92,9 @@ namespace DeepParameters {
             }
         }
 
+        /// <summary>
+        /// Run background worker for load dataset
+        /// </summary>
         private void RunBackgroundWorkerLoadFile() {
             BackgroundWorker bgWorker = new BackgroundWorker();
             bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, progressBarDataLoad));
@@ -101,6 +107,12 @@ namespace DeepParameters {
             bgWorker.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Load dataset from file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="bgWorker">Background worker</param>
         private void LoadData(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
             // Check if bgworker has been stopped
             if (bgWorker.CancellationPending == true) {
@@ -143,11 +155,20 @@ namespace DeepParameters {
                     accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size),
                         new Size(accidentsData.Width, accidentsData.Height + 25));
 
+                    // Enable select accident button
+                    acceptFaultButton.Invoke(new Action<bool>((b) => acceptFaultButton.Enabled = b), true);
+
                     bgWorker.CancelAsync();
                 }
             }
         }
 
+        /// <summary>
+        /// Change progress bar value
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="progressBar">Progress bar that will be changed</param>
         private void ProgressBarChanged(object sender, ProgressChangedEventArgs e, ProgressBar progressBar) {
             if (e.ProgressPercentage > 100) {
                 progressBar.Value = 100;
@@ -175,6 +196,11 @@ namespace DeepParameters {
             dataGV.ColumnHeadersVisible = true;
         }
 
+        /// <summary>
+        /// Resize all controls on form then main resizing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainFrom_Resize(object sender, EventArgs e) {
             //DoResizeComponents();
         }
@@ -189,10 +215,18 @@ namespace DeepParameters {
             exitForm.Show();
         }
 
+        /// <summary>
+        /// Resize all controls on form then main for resize is end
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainFrom_ResizeEnd(object sender, EventArgs e) {
             DoResizeComponents();
         }
 
+        /// <summary>
+        /// Resize all main from components
+        /// </summary>
         private void DoResizeComponents() {
             int newWidth = this.Width - 28;
             int newHeight = this.Height - 67;
@@ -207,6 +241,26 @@ namespace DeepParameters {
             accidentsData.Size = new Size(newWidth - 192, newHeight - 35);
             progressBarDataLoad.Location = new Point(progressBarDataLoad.Location.X, accidentsData.Size.Height - 17);
             progressBarDataLoad.Size = new Size(accidentsData.Width, progressBarDataLoad.Height);
+        }
+
+        /// <summary>
+        /// Select accident for research
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void acceptFaultButton_Click(object sender, EventArgs e) {
+            AccidentHeader = selectAccident.Text;
+            AccidentValues.Clear();
+            int selectedAccidentIndex = selectAccident.SelectedIndex + 1;
+
+            // Fill AccidentValues list from dataGridView
+            for(int row = 0; row < accidentsData.Rows.Count; row++) {
+                try {
+                    AccidentValues.Add(Convert.ToDouble(accidentsData[selectedAccidentIndex, row].Value));
+                }
+                catch {
+                }
+            }
         }
     }
 }
