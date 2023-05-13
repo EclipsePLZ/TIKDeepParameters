@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 
 namespace DeepParameters.Work_WIth_Files.Interfaces {
     internal interface IFileService {
-        List<List<string>> Open(string filePath, BackgroundWorker bgWorker);
+        List<List<string>> Open(string filePath);
     }
 }

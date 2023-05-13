@@ -20,7 +20,7 @@ namespace DeepParameters.Work_WIth_Files {
         /// <returns></returns>
         public bool OpenFileDialog() {
             using (OpenFileDialog openFileDialog = new OpenFileDialog()) {
-                openFileDialog.Filter = "CSV files (*.csv)|*.csv|Excel Files|*.xls;*.xlsx";
+                openFileDialog.Filter = "Excel Files|*.xls;*.xlsx|CSV files (*.csv)|*.csv";
                 openFileDialog.Title = "Choose the file";
                 if (openFileDialog.ShowDialog() == DialogResult.OK) {
                     FilePath = openFileDialog.FileName;

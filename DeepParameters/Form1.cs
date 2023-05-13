@@ -94,6 +94,7 @@ namespace DeepParameters {
             bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, progressBarDataLoad));
             bgWorker.DoWork += new DoWorkEventHandler((sender, e) => LoadData(sender, e, bgWorker));
             bgWorker.WorkerReportsProgress = true;
+            bgWorker.WorkerSupportsCancellation = true;
             accidentsData.Size = new Size(accidentsData.Width, accidentsData.Height - 25);
             progressBarDataLoad.Value = 0;
             progressBarDataLoad.Visible = true;
@@ -101,15 +102,50 @@ namespace DeepParameters {
         }
 
         private void LoadData(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
-            List<List<string>> allRows = fileService.Open(dialogService.FilePath, bgWorker);
-            if (allRows.Count > 0) {
-                accidentsData.Invoke(new Action<List<string>>((s) => SetDataGVColumnHeaders(s, accidentsData, false)), allRows[0]);
+            // Check if bgworker has been stopped
+            if (bgWorker.CancellationPending == true) {
+                e.Cancel = true;
+            }
+            else {
+                List<List<string>> allRows = fileService.Open(dialogService.FilePath);
+                if (allRows.Count > 0) {
+                    // Add headers to data grid veiw
+                    accidentsData.Invoke(new Action<List<string>>((s) => SetDataGVColumnHeaders(s, accidentsData, false)), allRows[0]);
 
-                for (int i = 1; i < allRows.Count; i++) {
-                    accidentsData.Invoke(new Action<List<string>>((s) => accidentsData.Rows.Add(s.ToArray())), allRows[i]);
+                    // Create start parameters for progress bar
+                    int progress = 0;
+                    int step = (allRows.Count - 1) / 100;
+                    int oneBarInProgress = 1;
+                    if ((allRows.Count - 1) < 100) {
+                        step = 1;
+                        oneBarInProgress = (100 / (allRows.Count - 1)) + 1;
+                    }
+
+                    for (int i = 1; i < allRows.Count; i++) {
+                        // Find progress
+                        if ((i - 1) % step == 0) {
+                            progress += oneBarInProgress;
+                            bgWorker.ReportProgress(progress);
+                        }
+
+                        // Add row to dataGridView
+                        accidentsData.Invoke(new Action<List<string>>((s) => accidentsData.Rows.Add(s.ToArray())), allRows[i]);
+                    }
+
+                    // Add headers to comboBox
+                    selectAccident.Invoke(new Action<List<string>>((s) => selectAccident.Items.AddRange(s.ToArray())), allRows[0].Skip(1).ToList());
+                    selectAccident.Invoke(new Action<int>((n) => selectAccident.SelectedIndex = n), 0);
+
+                    // Hide progress bar
+                    progressBarDataLoad.Invoke(new Action<bool>((b) => progressBarDataLoad.Visible = b), false);
+
+                    // Resize dataGrid
+                    accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size),
+                        new Size(accidentsData.Width, accidentsData.Height + 25));
+
+                    bgWorker.CancelAsync();
                 }
             }
-            // Добавить столбцы в дата грид
         }
 
         private void ProgressBarChanged(object sender, ProgressChangedEventArgs e, ProgressBar progressBar) {
@@ -128,6 +164,7 @@ namespace DeepParameters {
         /// <param name="dataGV">DataGridView</param>
         /// <param name="autoSize">AutoSize column width</param>
         private void SetDataGVColumnHeaders(List<string> headers, DataGridView dataGV, bool autoSize) {
+            dataGV.ColumnCount = headers.Count;
             for (int i = 0; i < dataGV.Columns.Count; i++) {
                 dataGV.Columns[i].HeaderText = headers[i];
                 dataGV.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -139,6 +176,24 @@ namespace DeepParameters {
         }
 
         private void MainFrom_Resize(object sender, EventArgs e) {
+            //DoResizeComponents();
+        }
+
+        /// <summary>
+        /// Exit application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExitApp_Click(object sender, EventArgs e) {
+            var exitForm = new ExitForm();
+            exitForm.Show();
+        }
+
+        private void MainFrom_ResizeEnd(object sender, EventArgs e) {
+            DoResizeComponents();
+        }
+
+        private void DoResizeComponents() {
             int newWidth = this.Width - 28;
             int newHeight = this.Height - 67;
             int widthDiff = newWidth - allTabs.Width;
@@ -152,16 +207,6 @@ namespace DeepParameters {
             accidentsData.Size = new Size(newWidth - 192, newHeight - 35);
             progressBarDataLoad.Location = new Point(progressBarDataLoad.Location.X, accidentsData.Size.Height - 17);
             progressBarDataLoad.Size = new Size(accidentsData.Width, progressBarDataLoad.Height);
-        }
-
-        /// <summary>
-        /// Exit application
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ExitApp_Click(object sender, EventArgs e) {
-            var exitForm = new ExitForm();
-            exitForm.Show();
         }
     }
 }

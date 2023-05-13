@@ -183,6 +183,7 @@
             this.MinimumSize = new System.Drawing.Size(852, 483);
             this.Name = "MainFrom";
             this.Text = "DeepStatistic";
+            this.ResizeEnd += new System.EventHandler(this.MainFrom_ResizeEnd);
             this.Resize += new System.EventHandler(this.MainFrom_Resize);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
