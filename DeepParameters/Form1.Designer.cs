@@ -30,14 +30,17 @@
             this.ExitApp = new System.Windows.Forms.ToolStripMenuItem();
             this.helpAllSteps = new System.Windows.Forms.ToolStripMenuItem();
             this.allTabs = new System.Windows.Forms.TabControl();
-            this.tab1 = new System.Windows.Forms.TabPage();
+            this.loadDataTab = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.selectAccident = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.choosenAccidentLabel = new System.Windows.Forms.Label();
             this.acceptFaultButton = new System.Windows.Forms.Button();
+            this.accidentsData = new System.Windows.Forms.DataGridView();
+            this.progressBarDataLoad = new System.Windows.Forms.ProgressBar();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
-            this.tab1.SuspendLayout();
+            this.loadDataTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -66,14 +69,16 @@
             // OpenFile
             // 
             this.OpenFile.Name = "OpenFile";
-            this.OpenFile.Size = new System.Drawing.Size(121, 22);
+            this.OpenFile.Size = new System.Drawing.Size(180, 22);
             this.OpenFile.Text = "Открыть";
+            this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
             // 
             // ExitApp
             // 
             this.ExitApp.Name = "ExitApp";
             this.ExitApp.Size = new System.Drawing.Size(54, 20);
             this.ExitApp.Text = "Выход";
+            this.ExitApp.Click += new System.EventHandler(this.ExitApp_Click);
             // 
             // helpAllSteps
             // 
@@ -83,7 +88,7 @@
             // 
             // allTabs
             // 
-            this.allTabs.Controls.Add(this.tab1);
+            this.allTabs.Controls.Add(this.loadDataTab);
             this.allTabs.Controls.Add(this.tabPage2);
             this.allTabs.Location = new System.Drawing.Point(12, 27);
             this.allTabs.Name = "allTabs";
@@ -91,18 +96,20 @@
             this.allTabs.Size = new System.Drawing.Size(824, 416);
             this.allTabs.TabIndex = 2;
             // 
-            // tab1
+            // loadDataTab
             // 
-            this.tab1.Controls.Add(this.acceptFaultButton);
-            this.tab1.Controls.Add(this.label1);
-            this.tab1.Controls.Add(this.selectAccident);
-            this.tab1.Location = new System.Drawing.Point(4, 22);
-            this.tab1.Name = "tab1";
-            this.tab1.Padding = new System.Windows.Forms.Padding(3);
-            this.tab1.Size = new System.Drawing.Size(816, 390);
-            this.tab1.TabIndex = 0;
-            this.tab1.Text = "Загрузка данных";
-            this.tab1.UseVisualStyleBackColor = true;
+            this.loadDataTab.Controls.Add(this.progressBarDataLoad);
+            this.loadDataTab.Controls.Add(this.accidentsData);
+            this.loadDataTab.Controls.Add(this.acceptFaultButton);
+            this.loadDataTab.Controls.Add(this.choosenAccidentLabel);
+            this.loadDataTab.Controls.Add(this.selectAccident);
+            this.loadDataTab.Location = new System.Drawing.Point(4, 22);
+            this.loadDataTab.Name = "loadDataTab";
+            this.loadDataTab.Padding = new System.Windows.Forms.Padding(3);
+            this.loadDataTab.Size = new System.Drawing.Size(816, 390);
+            this.loadDataTab.TabIndex = 0;
+            this.loadDataTab.Text = "Загрузка данных";
+            this.loadDataTab.UseVisualStyleBackColor = true;
             // 
             // tabPage2
             // 
@@ -123,14 +130,14 @@
             this.selectAccident.Size = new System.Drawing.Size(150, 21);
             this.selectAccident.TabIndex = 3;
             // 
-            // label1
+            // choosenAccidentLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(655, 91);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 13);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Выбранная авария";
+            this.choosenAccidentLabel.AutoSize = true;
+            this.choosenAccidentLabel.Location = new System.Drawing.Point(655, 91);
+            this.choosenAccidentLabel.Name = "choosenAccidentLabel";
+            this.choosenAccidentLabel.Size = new System.Drawing.Size(103, 13);
+            this.choosenAccidentLabel.TabIndex = 5;
+            this.choosenAccidentLabel.Text = "Выбранная авария";
             // 
             // acceptFaultButton
             // 
@@ -142,6 +149,29 @@
             this.acceptFaultButton.TabIndex = 7;
             this.acceptFaultButton.Text = "Подтвердить";
             this.acceptFaultButton.UseVisualStyleBackColor = true;
+            this.acceptFaultButton.Click += new System.EventHandler(this.acceptFaultButton_Click);
+            // 
+            // accidentsData
+            // 
+            this.accidentsData.AllowUserToAddRows = false;
+            this.accidentsData.AllowUserToDeleteRows = false;
+            this.accidentsData.AllowUserToResizeRows = false;
+            this.accidentsData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.accidentsData.Location = new System.Drawing.Point(3, 3);
+            this.accidentsData.Name = "accidentsData";
+            this.accidentsData.ReadOnly = true;
+            this.accidentsData.RowHeadersWidth = 51;
+            this.accidentsData.Size = new System.Drawing.Size(632, 381);
+            this.accidentsData.TabIndex = 8;
+            // 
+            // progressBarDataLoad
+            // 
+            this.progressBarDataLoad.Location = new System.Drawing.Point(3, 364);
+            this.progressBarDataLoad.Margin = new System.Windows.Forms.Padding(2);
+            this.progressBarDataLoad.Name = "progressBarDataLoad";
+            this.progressBarDataLoad.Size = new System.Drawing.Size(632, 19);
+            this.progressBarDataLoad.TabIndex = 9;
+            this.progressBarDataLoad.Visible = false;
             // 
             // MainFrom
             // 
@@ -151,14 +181,17 @@
             this.Controls.Add(this.allTabs);
             this.Controls.Add(this.menuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(852, 483);
             this.Name = "MainFrom";
             this.Text = "DeepStatistic";
+            this.ResizeEnd += new System.EventHandler(this.MainFrom_ResizeEnd);
             this.Resize += new System.EventHandler(this.MainFrom_Resize);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.allTabs.ResumeLayout(false);
-            this.tab1.ResumeLayout(false);
-            this.tab1.PerformLayout();
+            this.loadDataTab.ResumeLayout(false);
+            this.loadDataTab.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -172,11 +205,13 @@
         private System.Windows.Forms.ToolStripMenuItem ExitApp;
         private System.Windows.Forms.ToolStripMenuItem helpAllSteps;
         private System.Windows.Forms.TabControl allTabs;
-        private System.Windows.Forms.TabPage tab1;
+        private System.Windows.Forms.TabPage loadDataTab;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Button acceptFaultButton;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label choosenAccidentLabel;
         private System.Windows.Forms.ComboBox selectAccident;
+        private System.Windows.Forms.ProgressBar progressBarDataLoad;
+        private System.Windows.Forms.DataGridView accidentsData;
     }
 }
 
