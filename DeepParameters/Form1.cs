@@ -57,18 +57,30 @@ namespace DeepParameters {
         }
 
         /// <summary>
-        /// Function for clear controls on step1
+        /// Function for clear controls start with step1
         /// </summary>
         private void ClearControlsStep1() {
-            ClearDataGVHeaders(accidentsData);
+            ClearDataGV(accidentsData);
             selectAccident.Items.Clear();
+            ClearControlsStep2();
+        }
+
+        /// <summary>
+        /// Funciton for clear controls start wit step2
+        /// </summary>
+        private void ClearControlsStep2() {
+            numberOfValuesForNormLevel.Value = 1;
+            numberOfStdForMaxLevel.Value = 1;
+            numberOfValuesInAcc.Clear();
+            indexOfMaxValue.Clear();
+            ClearDataGV(dataSignalReliability);
         }
 
         /// <summary>
         /// Clear headers from dataGridView
         /// </summary>
         /// <param name="data">dataGridView</param>
-        private void ClearDataGVHeaders(DataGridView data) {
+        private void ClearDataGV(DataGridView data) {
             data.Rows.Clear();
             data.ColumnHeadersVisible = false;
             data.Refresh();
@@ -260,6 +272,22 @@ namespace DeepParameters {
                 }
                 catch {
                 }
+            }
+        }
+
+        /// <summary>
+        /// Change information text about step
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void allTabs_Selected(object sender, TabControlEventArgs e) {
+            switch (allTabs.SelectedIndex) {
+                case 0:
+                    helpAllSteps.ToolTipText = StepsInfo.Step1;
+                    break;
+                case 1:
+                    helpAllSteps.ToolTipText = StepsInfo.Step2;
+                    break;
             }
         }
     }

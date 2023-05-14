@@ -31,16 +31,31 @@
             this.helpAllSteps = new System.Windows.Forms.ToolStripMenuItem();
             this.allTabs = new System.Windows.Forms.TabControl();
             this.loadDataTab = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.selectAccident = new System.Windows.Forms.ComboBox();
-            this.choosenAccidentLabel = new System.Windows.Forms.Label();
-            this.acceptFaultButton = new System.Windows.Forms.Button();
-            this.accidentsData = new System.Windows.Forms.DataGridView();
             this.progressBarDataLoad = new System.Windows.Forms.ProgressBar();
+            this.accidentsData = new System.Windows.Forms.DataGridView();
+            this.acceptFaultButton = new System.Windows.Forms.Button();
+            this.choosenAccidentLabel = new System.Windows.Forms.Label();
+            this.selectAccident = new System.Windows.Forms.ComboBox();
+            this.findReliabIntervalTap = new System.Windows.Forms.TabPage();
+            this.labelNumberOfValuesInAcc = new System.Windows.Forms.Label();
+            this.numberOfValuesInAcc = new System.Windows.Forms.TextBox();
+            this.labelIndexWithMaxValue = new System.Windows.Forms.Label();
+            this.indexOfMaxValue = new System.Windows.Forms.TextBox();
+            this.labelNumberOfValuesForNormLevel = new System.Windows.Forms.Label();
+            this.numberOfValuesForNormLevel = new System.Windows.Forms.NumericUpDown();
+            this.labelNumberOfStdForMaxLevel = new System.Windows.Forms.Label();
+            this.numberOfStdForMaxLevel = new System.Windows.Forms.NumericUpDown();
+            this.calcReliabilityInterval = new System.Windows.Forms.Button();
+            this.dataSignalReliability = new System.Windows.Forms.DataGridView();
+            this.progressBarReliability = new System.Windows.Forms.ProgressBar();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).BeginInit();
+            this.findReliabIntervalTap.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -69,7 +84,7 @@
             // OpenFile
             // 
             this.OpenFile.Name = "OpenFile";
-            this.OpenFile.Size = new System.Drawing.Size(180, 22);
+            this.OpenFile.Size = new System.Drawing.Size(121, 22);
             this.OpenFile.Text = "Открыть";
             this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
             // 
@@ -89,12 +104,13 @@
             // allTabs
             // 
             this.allTabs.Controls.Add(this.loadDataTab);
-            this.allTabs.Controls.Add(this.tabPage2);
+            this.allTabs.Controls.Add(this.findReliabIntervalTap);
             this.allTabs.Location = new System.Drawing.Point(12, 27);
             this.allTabs.Name = "allTabs";
             this.allTabs.SelectedIndex = 0;
             this.allTabs.Size = new System.Drawing.Size(824, 416);
             this.allTabs.TabIndex = 2;
+            this.allTabs.Selected += new System.Windows.Forms.TabControlEventHandler(this.allTabs_Selected);
             // 
             // loadDataTab
             // 
@@ -111,45 +127,14 @@
             this.loadDataTab.Text = "Загрузка данных";
             this.loadDataTab.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // progressBarDataLoad
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(816, 390);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // selectAccident
-            // 
-            this.selectAccident.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.selectAccident.FormattingEnabled = true;
-            this.selectAccident.Location = new System.Drawing.Point(658, 107);
-            this.selectAccident.Name = "selectAccident";
-            this.selectAccident.Size = new System.Drawing.Size(150, 21);
-            this.selectAccident.TabIndex = 3;
-            // 
-            // choosenAccidentLabel
-            // 
-            this.choosenAccidentLabel.AutoSize = true;
-            this.choosenAccidentLabel.Location = new System.Drawing.Point(655, 91);
-            this.choosenAccidentLabel.Name = "choosenAccidentLabel";
-            this.choosenAccidentLabel.Size = new System.Drawing.Size(103, 13);
-            this.choosenAccidentLabel.TabIndex = 5;
-            this.choosenAccidentLabel.Text = "Выбранная авария";
-            // 
-            // acceptFaultButton
-            // 
-            this.acceptFaultButton.Enabled = false;
-            this.acceptFaultButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.acceptFaultButton.Location = new System.Drawing.Point(680, 255);
-            this.acceptFaultButton.Name = "acceptFaultButton";
-            this.acceptFaultButton.Size = new System.Drawing.Size(110, 48);
-            this.acceptFaultButton.TabIndex = 7;
-            this.acceptFaultButton.Text = "Подтвердить";
-            this.acceptFaultButton.UseVisualStyleBackColor = true;
-            this.acceptFaultButton.Click += new System.EventHandler(this.acceptFaultButton_Click);
+            this.progressBarDataLoad.Location = new System.Drawing.Point(3, 364);
+            this.progressBarDataLoad.Margin = new System.Windows.Forms.Padding(2);
+            this.progressBarDataLoad.Name = "progressBarDataLoad";
+            this.progressBarDataLoad.Size = new System.Drawing.Size(632, 19);
+            this.progressBarDataLoad.TabIndex = 9;
+            this.progressBarDataLoad.Visible = false;
             // 
             // accidentsData
             // 
@@ -164,14 +149,186 @@
             this.accidentsData.Size = new System.Drawing.Size(632, 381);
             this.accidentsData.TabIndex = 8;
             // 
-            // progressBarDataLoad
+            // acceptFaultButton
             // 
-            this.progressBarDataLoad.Location = new System.Drawing.Point(3, 364);
-            this.progressBarDataLoad.Margin = new System.Windows.Forms.Padding(2);
-            this.progressBarDataLoad.Name = "progressBarDataLoad";
-            this.progressBarDataLoad.Size = new System.Drawing.Size(632, 19);
-            this.progressBarDataLoad.TabIndex = 9;
-            this.progressBarDataLoad.Visible = false;
+            this.acceptFaultButton.Enabled = false;
+            this.acceptFaultButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.acceptFaultButton.Location = new System.Drawing.Point(680, 255);
+            this.acceptFaultButton.Name = "acceptFaultButton";
+            this.acceptFaultButton.Size = new System.Drawing.Size(110, 48);
+            this.acceptFaultButton.TabIndex = 7;
+            this.acceptFaultButton.Text = "Подтвердить";
+            this.acceptFaultButton.UseVisualStyleBackColor = true;
+            this.acceptFaultButton.Click += new System.EventHandler(this.acceptFaultButton_Click);
+            // 
+            // choosenAccidentLabel
+            // 
+            this.choosenAccidentLabel.AutoSize = true;
+            this.choosenAccidentLabel.Location = new System.Drawing.Point(655, 91);
+            this.choosenAccidentLabel.Name = "choosenAccidentLabel";
+            this.choosenAccidentLabel.Size = new System.Drawing.Size(103, 13);
+            this.choosenAccidentLabel.TabIndex = 5;
+            this.choosenAccidentLabel.Text = "Выбранная авария";
+            // 
+            // selectAccident
+            // 
+            this.selectAccident.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.selectAccident.FormattingEnabled = true;
+            this.selectAccident.Location = new System.Drawing.Point(658, 107);
+            this.selectAccident.Name = "selectAccident";
+            this.selectAccident.Size = new System.Drawing.Size(150, 21);
+            this.selectAccident.TabIndex = 3;
+            // 
+            // findReliabIntervalTap
+            // 
+            this.findReliabIntervalTap.Controls.Add(this.progressBarReliability);
+            this.findReliabIntervalTap.Controls.Add(this.dataSignalReliability);
+            this.findReliabIntervalTap.Controls.Add(this.calcReliabilityInterval);
+            this.findReliabIntervalTap.Controls.Add(this.numberOfStdForMaxLevel);
+            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfStdForMaxLevel);
+            this.findReliabIntervalTap.Controls.Add(this.numberOfValuesForNormLevel);
+            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfValuesForNormLevel);
+            this.findReliabIntervalTap.Controls.Add(this.indexOfMaxValue);
+            this.findReliabIntervalTap.Controls.Add(this.labelIndexWithMaxValue);
+            this.findReliabIntervalTap.Controls.Add(this.numberOfValuesInAcc);
+            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfValuesInAcc);
+            this.findReliabIntervalTap.Location = new System.Drawing.Point(4, 22);
+            this.findReliabIntervalTap.Name = "findReliabIntervalTap";
+            this.findReliabIntervalTap.Padding = new System.Windows.Forms.Padding(3);
+            this.findReliabIntervalTap.Size = new System.Drawing.Size(816, 390);
+            this.findReliabIntervalTap.TabIndex = 1;
+            this.findReliabIntervalTap.Text = "Расчет интервала надежности";
+            this.findReliabIntervalTap.UseVisualStyleBackColor = true;
+            // 
+            // labelNumberOfValuesInAcc
+            // 
+            this.labelNumberOfValuesInAcc.AutoSize = true;
+            this.labelNumberOfValuesInAcc.Location = new System.Drawing.Point(21, 23);
+            this.labelNumberOfValuesInAcc.Name = "labelNumberOfValuesInAcc";
+            this.labelNumberOfValuesInAcc.Size = new System.Drawing.Size(140, 26);
+            this.labelNumberOfValuesInAcc.TabIndex = 19;
+            this.labelNumberOfValuesInAcc.Text = "Количество наблюдений в\r\nвыбранной аварии:";
+            // 
+            // numberOfValuesInAcc
+            // 
+            this.numberOfValuesInAcc.Location = new System.Drawing.Point(175, 29);
+            this.numberOfValuesInAcc.Name = "numberOfValuesInAcc";
+            this.numberOfValuesInAcc.ReadOnly = true;
+            this.numberOfValuesInAcc.Size = new System.Drawing.Size(100, 20);
+            this.numberOfValuesInAcc.TabIndex = 20;
+            // 
+            // labelIndexWithMaxValue
+            // 
+            this.labelIndexWithMaxValue.AutoSize = true;
+            this.labelIndexWithMaxValue.Location = new System.Drawing.Point(21, 79);
+            this.labelIndexWithMaxValue.Name = "labelIndexWithMaxValue";
+            this.labelIndexWithMaxValue.Size = new System.Drawing.Size(148, 26);
+            this.labelIndexWithMaxValue.TabIndex = 21;
+            this.labelIndexWithMaxValue.Text = "Индекс наблюдения с \r\nмаксимальным значением:";
+            // 
+            // indexOfMaxValue
+            // 
+            this.indexOfMaxValue.Location = new System.Drawing.Point(175, 85);
+            this.indexOfMaxValue.Name = "indexOfMaxValue";
+            this.indexOfMaxValue.ReadOnly = true;
+            this.indexOfMaxValue.Size = new System.Drawing.Size(100, 20);
+            this.indexOfMaxValue.TabIndex = 22;
+            // 
+            // labelNumberOfValuesForNormLevel
+            // 
+            this.labelNumberOfValuesForNormLevel.AutoSize = true;
+            this.labelNumberOfValuesForNormLevel.Location = new System.Drawing.Point(21, 166);
+            this.labelNumberOfValuesForNormLevel.Name = "labelNumberOfValuesForNormLevel";
+            this.labelNumberOfValuesForNormLevel.Size = new System.Drawing.Size(199, 26);
+            this.labelNumberOfValuesForNormLevel.TabIndex = 23;
+            this.labelNumberOfValuesForNormLevel.Text = "Количество наблюдений для\r\nподсчета уровня нормальной работы:";
+            // 
+            // numberOfValuesForNormLevel
+            // 
+            this.numberOfValuesForNormLevel.Location = new System.Drawing.Point(273, 172);
+            this.numberOfValuesForNormLevel.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfValuesForNormLevel.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfValuesForNormLevel.Name = "numberOfValuesForNormLevel";
+            this.numberOfValuesForNormLevel.Size = new System.Drawing.Size(120, 20);
+            this.numberOfValuesForNormLevel.TabIndex = 24;
+            this.numberOfValuesForNormLevel.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // labelNumberOfStdForMaxLevel
+            // 
+            this.labelNumberOfStdForMaxLevel.AutoSize = true;
+            this.labelNumberOfStdForMaxLevel.Location = new System.Drawing.Point(21, 215);
+            this.labelNumberOfStdForMaxLevel.Name = "labelNumberOfStdForMaxLevel";
+            this.labelNumberOfStdForMaxLevel.Size = new System.Drawing.Size(246, 26);
+            this.labelNumberOfStdForMaxLevel.TabIndex = 25;
+            this.labelNumberOfStdForMaxLevel.Text = "Количество стандартных отклонения для\r\nподсчета максимального допустимого уровня:" +
+    "";
+            // 
+            // numberOfStdForMaxLevel
+            // 
+            this.numberOfStdForMaxLevel.DecimalPlaces = 1;
+            this.numberOfStdForMaxLevel.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numberOfStdForMaxLevel.Location = new System.Drawing.Point(273, 221);
+            this.numberOfStdForMaxLevel.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfStdForMaxLevel.Name = "numberOfStdForMaxLevel";
+            this.numberOfStdForMaxLevel.Size = new System.Drawing.Size(120, 20);
+            this.numberOfStdForMaxLevel.TabIndex = 26;
+            this.numberOfStdForMaxLevel.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // calcReliabilityInterval
+            // 
+            this.calcReliabilityInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.calcReliabilityInterval.Location = new System.Drawing.Point(97, 310);
+            this.calcReliabilityInterval.Name = "calcReliabilityInterval";
+            this.calcReliabilityInterval.Size = new System.Drawing.Size(111, 44);
+            this.calcReliabilityInterval.TabIndex = 27;
+            this.calcReliabilityInterval.Text = "Рассчитать";
+            this.calcReliabilityInterval.UseVisualStyleBackColor = true;
+            // 
+            // dataSignalReliability
+            // 
+            this.dataSignalReliability.AllowUserToAddRows = false;
+            this.dataSignalReliability.AllowUserToDeleteRows = false;
+            this.dataSignalReliability.AllowUserToResizeRows = false;
+            this.dataSignalReliability.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataSignalReliability.Location = new System.Drawing.Point(457, 23);
+            this.dataSignalReliability.Name = "dataSignalReliability";
+            this.dataSignalReliability.ReadOnly = true;
+            this.dataSignalReliability.RowHeadersWidth = 51;
+            this.dataSignalReliability.Size = new System.Drawing.Size(341, 353);
+            this.dataSignalReliability.TabIndex = 28;
+            // 
+            // progressBarReliability
+            // 
+            this.progressBarReliability.Location = new System.Drawing.Point(457, 357);
+            this.progressBarReliability.Margin = new System.Windows.Forms.Padding(2);
+            this.progressBarReliability.Name = "progressBarReliability";
+            this.progressBarReliability.Size = new System.Drawing.Size(341, 19);
+            this.progressBarReliability.TabIndex = 29;
+            this.progressBarReliability.Visible = false;
             // 
             // MainFrom
             // 
@@ -192,6 +349,11 @@
             this.loadDataTab.ResumeLayout(false);
             this.loadDataTab.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).EndInit();
+            this.findReliabIntervalTap.ResumeLayout(false);
+            this.findReliabIntervalTap.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -206,12 +368,23 @@
         private System.Windows.Forms.ToolStripMenuItem helpAllSteps;
         private System.Windows.Forms.TabControl allTabs;
         private System.Windows.Forms.TabPage loadDataTab;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage findReliabIntervalTap;
         private System.Windows.Forms.Button acceptFaultButton;
         private System.Windows.Forms.Label choosenAccidentLabel;
         private System.Windows.Forms.ComboBox selectAccident;
         private System.Windows.Forms.ProgressBar progressBarDataLoad;
         private System.Windows.Forms.DataGridView accidentsData;
+        private System.Windows.Forms.ProgressBar progressBarReliability;
+        private System.Windows.Forms.DataGridView dataSignalReliability;
+        private System.Windows.Forms.Button calcReliabilityInterval;
+        private System.Windows.Forms.NumericUpDown numberOfStdForMaxLevel;
+        private System.Windows.Forms.Label labelNumberOfStdForMaxLevel;
+        private System.Windows.Forms.NumericUpDown numberOfValuesForNormLevel;
+        private System.Windows.Forms.Label labelNumberOfValuesForNormLevel;
+        private System.Windows.Forms.TextBox indexOfMaxValue;
+        private System.Windows.Forms.Label labelIndexWithMaxValue;
+        private System.Windows.Forms.TextBox numberOfValuesInAcc;
+        private System.Windows.Forms.Label labelNumberOfValuesInAcc;
     }
 }
 
