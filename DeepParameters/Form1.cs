@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,9 @@ namespace DeepParameters {
         private List<double> AccidentValues { get; set; } = new List<double>();
         private string AccidentHeader { get; set; }
 
+        BackgroundWorker resizeWorker = new BackgroundWorker();
+        bool isResizeNeeded = false;
+
         public MainFrom() {
             InitializeComponent();
 
@@ -29,6 +33,10 @@ namespace DeepParameters {
             loadDataTab.Enabled = true;
 
             helpAllSteps.ToolTipText = StepsInfo.Step1;
+
+            resizeWorker.DoWork += new DoWorkEventHandler(DoResizeComponents);
+            resizeWorker.WorkerSupportsCancellation = true;
+            resizeWorker.RunWorkerAsync();
         }
 
         /// <summary>
@@ -209,53 +217,6 @@ namespace DeepParameters {
         }
 
         /// <summary>
-        /// Resize all controls on form then main resizing
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainFrom_Resize(object sender, EventArgs e) {
-            //DoResizeComponents();
-        }
-
-        /// <summary>
-        /// Exit application
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ExitApp_Click(object sender, EventArgs e) {
-            var exitForm = new ExitForm();
-            exitForm.Show();
-        }
-
-        /// <summary>
-        /// Resize all controls on form then main for resize is end
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainFrom_ResizeEnd(object sender, EventArgs e) {
-            DoResizeComponents();
-        }
-
-        /// <summary>
-        /// Resize all main from components
-        /// </summary>
-        private void DoResizeComponents() {
-            int newWidth = this.Width - 28;
-            int newHeight = this.Height - 67;
-            int widthDiff = newWidth - allTabs.Width;
-            int heightDiff = newHeight - allTabs.Height;
-            allTabs.Size = new Size(newWidth, newHeight);
-
-            // tab1
-            choosenAccidentLabel.Location = new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y);
-            selectAccident.Location = new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y);
-            acceptFaultButton.Location = new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff);
-            accidentsData.Size = new Size(newWidth - 192, newHeight - 35);
-            progressBarDataLoad.Location = new Point(progressBarDataLoad.Location.X, accidentsData.Size.Height - 17);
-            progressBarDataLoad.Size = new Size(accidentsData.Width, progressBarDataLoad.Height);
-        }
-
-        /// <summary>
         /// Select accident for research
         /// </summary>
         /// <param name="sender"></param>
@@ -288,6 +249,61 @@ namespace DeepParameters {
                 case 1:
                     helpAllSteps.ToolTipText = StepsInfo.Step2;
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Exit application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExitApp_Click(object sender, EventArgs e) {
+            var exitForm = new ExitForm();
+            exitForm.Show();
+        }
+
+        private void MainFrom_ResizeBegin(object sender, EventArgs e) {
+            isResizeNeeded = true;
+        }
+
+        private void MainFrom_ResizeEnd(object sender, EventArgs e) {
+            isResizeNeeded = false;
+        }
+
+        private void MainFrom_FormClosing(object sender, FormClosingEventArgs e) {
+            resizeWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Resize all main from components
+        /// </summary>
+        private void DoResizeComponents(object sender, DoWorkEventArgs e) {
+            while (true) {
+                if (isResizeNeeded) {
+                    int newWidth = this.Width - 28;
+                    int newHeight = this.Height - 67;
+                    int widthDiff = newWidth - allTabs.Width;
+                    int heightDiff = newHeight - allTabs.Height;
+                    allTabs.Invoke(new Action<Size>((size) => allTabs.Size = size), new Size(newWidth, newHeight));
+
+                    // tab1
+                    choosenAccidentLabel.Invoke(new Action<Point>((loc) => choosenAccidentLabel.Location = loc),
+                        new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y));
+
+                    selectAccident.Invoke(new Action<Point>((loc) => selectAccident.Location = loc),
+                        new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y));
+
+                    acceptFaultButton.Invoke(new Action<Point>((loc) => acceptFaultButton.Location = loc),
+                        new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff));
+
+                    accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size), new Size(newWidth - 192, newHeight - 35));
+
+                    progressBarDataLoad.Invoke(new Action<Point>((loc) => progressBarDataLoad.Location = loc),
+                        new Point(progressBarDataLoad.Location.X, accidentsData.Size.Height - 17));
+
+                    progressBarDataLoad.Invoke(new Action<Size>((size) => progressBarDataLoad.Size = size), 
+                        new Size(accidentsData.Width, progressBarDataLoad.Height));
+                } 
             }
         }
     }

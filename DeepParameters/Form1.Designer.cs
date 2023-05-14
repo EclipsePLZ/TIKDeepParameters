@@ -341,8 +341,9 @@
             this.MinimumSize = new System.Drawing.Size(852, 483);
             this.Name = "MainFrom";
             this.Text = "DeepStatistic";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFrom_FormClosing);
+            this.ResizeBegin += new System.EventHandler(this.MainFrom_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.MainFrom_ResizeEnd);
-            this.Resize += new System.EventHandler(this.MainFrom_Resize);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.allTabs.ResumeLayout(false);
