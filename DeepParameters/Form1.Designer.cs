@@ -36,7 +36,7 @@
             this.acceptFaultButton = new System.Windows.Forms.Button();
             this.choosenAccidentLabel = new System.Windows.Forms.Label();
             this.selectAccident = new System.Windows.Forms.ComboBox();
-            this.findReliabIntervalTap = new System.Windows.Forms.TabPage();
+            this.findReliabIntervalTab = new System.Windows.Forms.TabPage();
             this.labelNumberOfValuesInAcc = new System.Windows.Forms.Label();
             this.numberOfValuesInAcc = new System.Windows.Forms.TextBox();
             this.labelIndexWithMaxValue = new System.Windows.Forms.Label();
@@ -45,14 +45,14 @@
             this.numberOfValuesForNormLevel = new System.Windows.Forms.NumericUpDown();
             this.labelNumberOfStdForMaxLevel = new System.Windows.Forms.Label();
             this.numberOfStdForMaxLevel = new System.Windows.Forms.NumericUpDown();
-            this.calcReliabilityInterval = new System.Windows.Forms.Button();
+            this.buttonCalcReliabilityInterval = new System.Windows.Forms.Button();
             this.dataSignalReliability = new System.Windows.Forms.DataGridView();
             this.progressBarReliability = new System.Windows.Forms.ProgressBar();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).BeginInit();
-            this.findReliabIntervalTap.SuspendLayout();
+            this.findReliabIntervalTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).BeginInit();
@@ -104,7 +104,7 @@
             // allTabs
             // 
             this.allTabs.Controls.Add(this.loadDataTab);
-            this.allTabs.Controls.Add(this.findReliabIntervalTap);
+            this.allTabs.Controls.Add(this.findReliabIntervalTab);
             this.allTabs.Location = new System.Drawing.Point(12, 27);
             this.allTabs.Name = "allTabs";
             this.allTabs.SelectedIndex = 0;
@@ -179,26 +179,26 @@
             this.selectAccident.Size = new System.Drawing.Size(150, 21);
             this.selectAccident.TabIndex = 3;
             // 
-            // findReliabIntervalTap
+            // findReliabIntervalTab
             // 
-            this.findReliabIntervalTap.Controls.Add(this.progressBarReliability);
-            this.findReliabIntervalTap.Controls.Add(this.dataSignalReliability);
-            this.findReliabIntervalTap.Controls.Add(this.calcReliabilityInterval);
-            this.findReliabIntervalTap.Controls.Add(this.numberOfStdForMaxLevel);
-            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfStdForMaxLevel);
-            this.findReliabIntervalTap.Controls.Add(this.numberOfValuesForNormLevel);
-            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfValuesForNormLevel);
-            this.findReliabIntervalTap.Controls.Add(this.indexOfMaxValue);
-            this.findReliabIntervalTap.Controls.Add(this.labelIndexWithMaxValue);
-            this.findReliabIntervalTap.Controls.Add(this.numberOfValuesInAcc);
-            this.findReliabIntervalTap.Controls.Add(this.labelNumberOfValuesInAcc);
-            this.findReliabIntervalTap.Location = new System.Drawing.Point(4, 22);
-            this.findReliabIntervalTap.Name = "findReliabIntervalTap";
-            this.findReliabIntervalTap.Padding = new System.Windows.Forms.Padding(3);
-            this.findReliabIntervalTap.Size = new System.Drawing.Size(816, 390);
-            this.findReliabIntervalTap.TabIndex = 1;
-            this.findReliabIntervalTap.Text = "Расчет интервала надежности";
-            this.findReliabIntervalTap.UseVisualStyleBackColor = true;
+            this.findReliabIntervalTab.Controls.Add(this.progressBarReliability);
+            this.findReliabIntervalTab.Controls.Add(this.dataSignalReliability);
+            this.findReliabIntervalTab.Controls.Add(this.buttonCalcReliabilityInterval);
+            this.findReliabIntervalTab.Controls.Add(this.numberOfStdForMaxLevel);
+            this.findReliabIntervalTab.Controls.Add(this.labelNumberOfStdForMaxLevel);
+            this.findReliabIntervalTab.Controls.Add(this.numberOfValuesForNormLevel);
+            this.findReliabIntervalTab.Controls.Add(this.labelNumberOfValuesForNormLevel);
+            this.findReliabIntervalTab.Controls.Add(this.indexOfMaxValue);
+            this.findReliabIntervalTab.Controls.Add(this.labelIndexWithMaxValue);
+            this.findReliabIntervalTab.Controls.Add(this.numberOfValuesInAcc);
+            this.findReliabIntervalTab.Controls.Add(this.labelNumberOfValuesInAcc);
+            this.findReliabIntervalTab.Location = new System.Drawing.Point(4, 22);
+            this.findReliabIntervalTab.Name = "findReliabIntervalTab";
+            this.findReliabIntervalTab.Padding = new System.Windows.Forms.Padding(3);
+            this.findReliabIntervalTab.Size = new System.Drawing.Size(816, 390);
+            this.findReliabIntervalTab.TabIndex = 1;
+            this.findReliabIntervalTab.Text = "Расчет интервала надежности";
+            this.findReliabIntervalTab.UseVisualStyleBackColor = true;
             // 
             // labelNumberOfValuesInAcc
             // 
@@ -298,15 +298,16 @@
             0,
             0});
             // 
-            // calcReliabilityInterval
+            // buttonCalcReliabilityInterval
             // 
-            this.calcReliabilityInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.calcReliabilityInterval.Location = new System.Drawing.Point(97, 310);
-            this.calcReliabilityInterval.Name = "calcReliabilityInterval";
-            this.calcReliabilityInterval.Size = new System.Drawing.Size(111, 44);
-            this.calcReliabilityInterval.TabIndex = 27;
-            this.calcReliabilityInterval.Text = "Рассчитать";
-            this.calcReliabilityInterval.UseVisualStyleBackColor = true;
+            this.buttonCalcReliabilityInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonCalcReliabilityInterval.Location = new System.Drawing.Point(97, 310);
+            this.buttonCalcReliabilityInterval.Name = "buttonCalcReliabilityInterval";
+            this.buttonCalcReliabilityInterval.Size = new System.Drawing.Size(111, 44);
+            this.buttonCalcReliabilityInterval.TabIndex = 27;
+            this.buttonCalcReliabilityInterval.Text = "Рассчитать";
+            this.buttonCalcReliabilityInterval.UseVisualStyleBackColor = true;
+            this.buttonCalcReliabilityInterval.Click += new System.EventHandler(this.buttonCalcReliabilityInterval_Click);
             // 
             // dataSignalReliability
             // 
@@ -350,8 +351,8 @@
             this.loadDataTab.ResumeLayout(false);
             this.loadDataTab.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).EndInit();
-            this.findReliabIntervalTap.ResumeLayout(false);
-            this.findReliabIntervalTap.PerformLayout();
+            this.findReliabIntervalTab.ResumeLayout(false);
+            this.findReliabIntervalTab.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).EndInit();
@@ -369,7 +370,7 @@
         private System.Windows.Forms.ToolStripMenuItem helpAllSteps;
         private System.Windows.Forms.TabControl allTabs;
         private System.Windows.Forms.TabPage loadDataTab;
-        private System.Windows.Forms.TabPage findReliabIntervalTap;
+        private System.Windows.Forms.TabPage findReliabIntervalTab;
         private System.Windows.Forms.Button acceptFaultButton;
         private System.Windows.Forms.Label choosenAccidentLabel;
         private System.Windows.Forms.ComboBox selectAccident;
@@ -377,7 +378,7 @@
         private System.Windows.Forms.DataGridView accidentsData;
         private System.Windows.Forms.ProgressBar progressBarReliability;
         private System.Windows.Forms.DataGridView dataSignalReliability;
-        private System.Windows.Forms.Button calcReliabilityInterval;
+        private System.Windows.Forms.Button buttonCalcReliabilityInterval;
         private System.Windows.Forms.NumericUpDown numberOfStdForMaxLevel;
         private System.Windows.Forms.Label labelNumberOfStdForMaxLevel;
         private System.Windows.Forms.NumericUpDown numberOfValuesForNormLevel;

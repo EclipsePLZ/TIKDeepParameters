@@ -13,7 +13,7 @@ namespace DeepParameters {
         /// <param name="numberOfValuesForNormalLevel">Number of values that will be used to calc the maximum level of normal work</param>
         /// <param name="numberOfStds">Number of standard deviations that will be used to calc the maximum level of normal work</param>
         /// <returns>Reliability Interval that contains 100 values (each value is 1 percent of relilability)</returns>
-        public static List<double> GetReliabilityInterval(List<double> values, int numberOfValuesForNormalLevel, int numberOfStds) {
+        public static List<double> GetReliabilityInterval(List<double> values, int numberOfValuesForNormalLevel, double numberOfStds) {
             // List that contains reliability sections
             List<double> reliabilityInterval = new List<double>();
 
@@ -31,10 +31,11 @@ namespace DeepParameters {
                 return Enumerable.Repeat(maxValue, 100).ToList();
             }
 
-            double oneDivision = (maxValue - maxNormalLevel) / 100;
+            double oneDivision = (maxValue - maxNormalLevel) / 99;
 
             // Add values to reliability interval
-            for (int i = 1; i < 100; i++) {
+            reliabilityInterval.Add(maxNormalLevel);
+            for (int i = 1; i < 99; i++) {
                 reliabilityInterval.Add(maxNormalLevel + i * oneDivision);
             }
             reliabilityInterval.Add(maxValue);
