@@ -62,5 +62,19 @@ namespace DeepParameters {
             double avg = values.Average();
             return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
         }
+
+        public static Dictionary<string, Func<List<double>, double>> Functions { get; } = 
+            new Dictionary<string, Func<List<double>, double>>() {
+                { "Начальный момент 1-го порядка",  FirstOrderMoment}
+            };
+
+        /// <summary>
+        /// Get First-order moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of first-order moment</returns>
+        private static double FirstOrderMoment(List<double> values) {
+            return values.Sum() / values.Count;
+        }
     }
 }

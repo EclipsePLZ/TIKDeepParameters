@@ -18,6 +18,7 @@ namespace DeepParameters {
 
         private List<double> AccidentValues { get; set; } = new List<double>();
         private string AccidentHeader { get; set; }
+        private List<double> ReliabilityInterval { get; set; } = new List<double>();
 
         BackgroundWorker resizeWorker = new BackgroundWorker();
         bool isResizeNeeded = false;
@@ -256,7 +257,8 @@ namespace DeepParameters {
         }
 
         private void buttonCalcReliabilityInterval_Click(object sender, EventArgs e) {
-            List<double> reliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
+            ReliabilityInterval.Clear();
+            ReliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
                 Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
 
             int currReliab = 0;
@@ -370,6 +372,19 @@ namespace DeepParameters {
             resizeWorker.CancelAsync();
         }
 
+        private void ValidateKeyPressedOnlyNums(object sender, KeyPressEventArgs e) {
+            e.Handled = CheckNumericIntValue(e);
+        }
+
+        /// <summary>
+        /// Check if predded numeric of backspace
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        private bool CheckNumericIntValue(KeyPressEventArgs e) {
+            return (e.KeyChar < 48 || e.KeyChar > 57) && e.KeyChar != 8;
+        }
+
         /// <summary>
         /// Resize all main from components
         /// </summary>
@@ -417,7 +432,5 @@ namespace DeepParameters {
                 } 
             }
         }
-
-        
     }
 }

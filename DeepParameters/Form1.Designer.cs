@@ -48,6 +48,8 @@
             this.buttonCalcReliabilityInterval = new System.Windows.Forms.Button();
             this.dataSignalReliability = new System.Windows.Forms.DataGridView();
             this.progressBarReliability = new System.Windows.Forms.ProgressBar();
+            this.researchParametersTab = new System.Windows.Forms.TabPage();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -56,6 +58,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).BeginInit();
+            this.researchParametersTab.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -105,6 +108,7 @@
             // 
             this.allTabs.Controls.Add(this.loadDataTab);
             this.allTabs.Controls.Add(this.findReliabIntervalTab);
+            this.allTabs.Controls.Add(this.researchParametersTab);
             this.allTabs.Location = new System.Drawing.Point(12, 27);
             this.allTabs.Name = "allTabs";
             this.allTabs.SelectedIndex = 0;
@@ -264,6 +268,7 @@
             0,
             0,
             0});
+            this.numberOfValuesForNormLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidateKeyPressedOnlyNums);
             // 
             // labelNumberOfStdForMaxLevel
             // 
@@ -331,6 +336,24 @@
             this.progressBarReliability.TabIndex = 29;
             this.progressBarReliability.Visible = false;
             // 
+            // researchParametersTab
+            // 
+            this.researchParametersTab.Controls.Add(this.listBox1);
+            this.researchParametersTab.Location = new System.Drawing.Point(4, 22);
+            this.researchParametersTab.Name = "researchParametersTab";
+            this.researchParametersTab.Size = new System.Drawing.Size(816, 390);
+            this.researchParametersTab.TabIndex = 2;
+            this.researchParametersTab.Text = "Параметры исследования";
+            this.researchParametersTab.UseVisualStyleBackColor = true;
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(27, 35);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(164, 251);
+            this.listBox1.TabIndex = 0;
+            // 
             // MainFrom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -356,6 +379,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).EndInit();
+            this.researchParametersTab.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -387,6 +411,8 @@
         private System.Windows.Forms.Label labelIndexWithMaxValue;
         private System.Windows.Forms.TextBox numberOfValuesInAcc;
         private System.Windows.Forms.Label labelNumberOfValuesInAcc;
+        private System.Windows.Forms.TabPage researchParametersTab;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
 
