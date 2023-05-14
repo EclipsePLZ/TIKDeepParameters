@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,9 @@ namespace DeepParameters {
         private List<double> AccidentValues { get; set; } = new List<double>();
         private string AccidentHeader { get; set; }
 
+        BackgroundWorker resizeWorker = new BackgroundWorker();
+        bool isResizeNeeded = false;
+
         public MainFrom() {
             InitializeComponent();
 
@@ -29,6 +33,12 @@ namespace DeepParameters {
             loadDataTab.Enabled = true;
 
             helpAllSteps.ToolTipText = StepsInfo.Step1;
+
+            numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
+
+            resizeWorker.DoWork += new DoWorkEventHandler(DoResizeComponents);
+            resizeWorker.WorkerSupportsCancellation = true;
+            resizeWorker.RunWorkerAsync();
         }
 
         /// <summary>
@@ -57,18 +67,38 @@ namespace DeepParameters {
         }
 
         /// <summary>
-        /// Function for clear controls on step1
+        /// Function for clear controls start with step1
         /// </summary>
         private void ClearControlsStep1() {
-            ClearDataGVHeaders(accidentsData);
+            ClearDataGV(accidentsData);
             selectAccident.Items.Clear();
+            ClearControlsStep2();
+        }
+
+        /// <summary>
+        /// Funciton for clear controls start with step2
+        /// </summary>
+        private void ClearControlsStep2() {
+            numberOfValuesForNormLevel.Value = 1;
+            numberOfStdForMaxLevel.Value = 1;
+            numberOfValuesInAcc.Clear();
+            indexOfMaxValue.Clear();
+            ClearDataGV(dataSignalReliability);
+            ClearControlsStep3();
+        }
+
+        /// <summary>
+        /// Function for clear controls start with step3
+        /// </summary>
+        private void ClearControlsStep3() {
+
         }
 
         /// <summary>
         /// Clear headers from dataGridView
         /// </summary>
         /// <param name="data">dataGridView</param>
-        private void ClearDataGVHeaders(DataGridView data) {
+        private void ClearDataGV(DataGridView data) {
             data.Rows.Clear();
             data.ColumnHeadersVisible = false;
             data.Refresh();
@@ -197,12 +227,125 @@ namespace DeepParameters {
         }
 
         /// <summary>
-        /// Resize all controls on form then main resizing
+        /// Select accident for research
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MainFrom_Resize(object sender, EventArgs e) {
-            //DoResizeComponents();
+        private void acceptFaultButton_Click(object sender, EventArgs e) {
+            AccidentHeader = selectAccident.Text;
+            AccidentValues.Clear();
+            int selectedAccidentIndex = selectAccident.SelectedIndex + 1;
+
+            // Fill AccidentValues list from dataGridView
+            for(int row = 0; row < accidentsData.Rows.Count; row++) {
+                if (accidentsData[selectedAccidentIndex, row].Value != "") {
+                    AccidentValues.Add(Convert.ToDouble(accidentsData[selectedAccidentIndex, row].Value));
+                }
+            }
+            ClearControlsStep2();
+
+            findReliabIntervalTab.Enabled = true;
+
+            // Fill accident statistics on second tab
+            int maxValueIndex = AccidentValues.IndexOf(AccidentValues.Max()) + 1;
+            numberOfValuesInAcc.Text = AccidentValues.Count.ToString();
+            indexOfMaxValue.Text = maxValueIndex.ToString();
+            numberOfValuesForNormLevel.Maximum = maxValueIndex;
+
+            allTabs.SelectTab(findReliabIntervalTab);
+        }
+
+        private void buttonCalcReliabilityInterval_Click(object sender, EventArgs e) {
+            List<double> reliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
+                Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
+
+            int currReliab = 0;
+
+            // Clear data grid view
+            ClearDataGV(dataSignalReliability);
+
+            RunBackgrounWorkerGetReliabilityForSignal();
+
+            ClearControlsStep3();
+            // Установка значений для следующего шага
+        }
+
+        /// <summary>
+        /// Find reliability for each value in accident in background
+        /// </summary>
+        private void RunBackgrounWorkerGetReliabilityForSignal() {
+            SetDataGVColumnHeaders(new List<string>() { AccidentHeader, "Надежность" }, dataSignalReliability, false);
+
+            // Run background worker
+            BackgroundWorker bgWoker = new BackgroundWorker();
+            bgWoker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, progressBarReliability));
+            bgWoker.DoWork += new DoWorkEventHandler((sender, e) => FindReliabilityForSignal(sender, e, bgWoker));
+            bgWoker.WorkerReportsProgress = true;
+            bgWoker.WorkerSupportsCancellation = true;
+            dataSignalReliability.Size = new Size(dataSignalReliability.Width, dataSignalReliability.Height - 25);
+            progressBarReliability.Value = 0;
+            progressBarReliability.Visible = true;
+            bgWoker.RunWorkerAsync();
+        }
+
+        private void FindReliabilityForSignal(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
+            List<double> reliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues,
+                Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
+
+
+            // Create start parameters for progress bar
+            int progress = 0;
+            int step = AccidentValues.Count / 100;
+            int oneBarInProgress = 1;
+            if (AccidentValues.Count < 100) {
+                step = 1;
+                oneBarInProgress = (100 / AccidentValues.Count) + 1;
+            }
+
+            int currReliab = 0;
+
+            for (int i = 0; i < AccidentValues.Count; i++) {
+                // Find progress
+                if (i % step == 0) {
+                    progress += oneBarInProgress;
+                    bgWorker.ReportProgress(progress);
+                }
+
+                // Find reliability for the current signal
+                while (currReliab < 100 && ((currReliab == 0 && AccidentValues[i] > reliabilityInterval[currReliab]) || 
+                    (currReliab > 0 && AccidentValues[i] >= reliabilityInterval[currReliab]))) {
+                    currReliab++;
+                }
+
+                // Add vibration value with reliability to data grid view
+                dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
+                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() });
+            }
+
+            // Hide progress bar
+            progressBarReliability.Invoke(new Action<bool>((b) => progressBarReliability.Visible = b), false);
+
+            // Resize dataGrid
+            dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
+                new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
+
+            bgWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Change information text about step
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void allTabs_Selected(object sender, TabControlEventArgs e) {
+            switch (allTabs.SelectedIndex) {
+                case 0:
+                    helpAllSteps.ToolTipText = StepsInfo.Step1;
+                    break;
+                case 1:
+                    helpAllSteps.ToolTipText = StepsInfo.Step2;
+                    break;
+            }
         }
 
         /// <summary>
@@ -215,52 +358,66 @@ namespace DeepParameters {
             exitForm.Show();
         }
 
-        /// <summary>
-        /// Resize all controls on form then main for resize is end
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        private void MainFrom_ResizeBegin(object sender, EventArgs e) {
+            isResizeNeeded = true;
+        }
+
         private void MainFrom_ResizeEnd(object sender, EventArgs e) {
-            DoResizeComponents();
+            isResizeNeeded = false;
+        }
+
+        private void MainFrom_FormClosing(object sender, FormClosingEventArgs e) {
+            resizeWorker.CancelAsync();
         }
 
         /// <summary>
         /// Resize all main from components
         /// </summary>
-        private void DoResizeComponents() {
-            int newWidth = this.Width - 28;
-            int newHeight = this.Height - 67;
-            int widthDiff = newWidth - allTabs.Width;
-            int heightDiff = newHeight - allTabs.Height;
-            allTabs.Size = new Size(newWidth, newHeight);
+        private void DoResizeComponents(object sender, DoWorkEventArgs e) {
+            while (true) {
+                if (isResizeNeeded) {
+                    int newWidth = this.Width - 28;
+                    int newHeight = this.Height - 67;
+                    int widthDiff = newWidth - allTabs.Width;
+                    int heightDiff = newHeight - allTabs.Height;
+                    allTabs.Invoke(new Action<Size>((size) => allTabs.Size = size), new Size(newWidth, newHeight));
 
-            // tab1
-            choosenAccidentLabel.Location = new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y);
-            selectAccident.Location = new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y);
-            acceptFaultButton.Location = new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff);
-            accidentsData.Size = new Size(newWidth - 192, newHeight - 35);
-            progressBarDataLoad.Location = new Point(progressBarDataLoad.Location.X, accidentsData.Size.Height - 17);
-            progressBarDataLoad.Size = new Size(accidentsData.Width, progressBarDataLoad.Height);
-        }
+                    // tab1
+                    choosenAccidentLabel.Invoke(new Action<Point>((loc) => choosenAccidentLabel.Location = loc),
+                        new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y));
 
-        /// <summary>
-        /// Select accident for research
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void acceptFaultButton_Click(object sender, EventArgs e) {
-            AccidentHeader = selectAccident.Text;
-            AccidentValues.Clear();
-            int selectedAccidentIndex = selectAccident.SelectedIndex + 1;
+                    selectAccident.Invoke(new Action<Point>((loc) => selectAccident.Location = loc),
+                        new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y));
 
-            // Fill AccidentValues list from dataGridView
-            for(int row = 0; row < accidentsData.Rows.Count; row++) {
-                try {
-                    AccidentValues.Add(Convert.ToDouble(accidentsData[selectedAccidentIndex, row].Value));
-                }
-                catch {
-                }
+                    acceptFaultButton.Invoke(new Action<Point>((loc) => acceptFaultButton.Location = loc),
+                        new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff));
+
+                    accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size), 
+                        new Size(accidentsData.Width + widthDiff, accidentsData.Height + heightDiff));
+
+                    progressBarDataLoad.Invoke(new Action<Point>((loc) => progressBarDataLoad.Location = loc),
+                        new Point(progressBarDataLoad.Location.X, progressBarDataLoad.Location.Y + heightDiff));
+
+                    progressBarDataLoad.Invoke(new Action<Size>((size) => progressBarDataLoad.Size = size), 
+                        new Size(accidentsData.Width, progressBarDataLoad.Height));
+
+
+                    // tab2
+                    buttonCalcReliabilityInterval.Invoke(new Action<Point>((loc) => buttonCalcReliabilityInterval.Location = loc),
+                        new Point(buttonCalcReliabilityInterval.Location.X, buttonCalcReliabilityInterval.Location.Y + heightDiff));
+
+                    dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
+                        new Size(dataSignalReliability.Width + widthDiff, dataSignalReliability.Height + heightDiff));
+
+                    progressBarReliability.Invoke(new Action<Point>((loc) => progressBarReliability.Location = loc),
+                        new Point(progressBarReliability.Location.X, progressBarReliability.Location.Y + heightDiff));
+
+                    progressBarReliability.Invoke(new Action<Size>((size) => progressBarReliability.Size = size),
+                        new Size(dataSignalReliability.Width, progressBarReliability.Height));
+                } 
             }
         }
+
+        
     }
 }
