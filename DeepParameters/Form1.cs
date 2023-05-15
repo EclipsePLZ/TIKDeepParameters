@@ -26,6 +26,8 @@ namespace DeepParameters {
         public MainFrom() {
             InitializeComponent();
 
+            MessageBox.Show(Statistics.StandardDeviationOnInterval_0_1(new List<double>() { 1, 2, 3}).ToString());
+
             // Centered Main From on the screen
             this.CenterToScreen();
 
