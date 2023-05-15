@@ -37,28 +37,38 @@
             this.choosenAccidentLabel = new System.Windows.Forms.Label();
             this.selectAccident = new System.Windows.Forms.ComboBox();
             this.findReliabIntervalTab = new System.Windows.Forms.TabPage();
-            this.labelNumberOfValuesInAcc = new System.Windows.Forms.Label();
-            this.numberOfValuesInAcc = new System.Windows.Forms.TextBox();
-            this.labelIndexWithMaxValue = new System.Windows.Forms.Label();
-            this.indexOfMaxValue = new System.Windows.Forms.TextBox();
-            this.labelNumberOfValuesForNormLevel = new System.Windows.Forms.Label();
-            this.numberOfValuesForNormLevel = new System.Windows.Forms.NumericUpDown();
-            this.labelNumberOfStdForMaxLevel = new System.Windows.Forms.Label();
-            this.numberOfStdForMaxLevel = new System.Windows.Forms.NumericUpDown();
-            this.buttonCalcReliabilityInterval = new System.Windows.Forms.Button();
-            this.dataSignalReliability = new System.Windows.Forms.DataGridView();
             this.progressBarReliability = new System.Windows.Forms.ProgressBar();
+            this.dataSignalReliability = new System.Windows.Forms.DataGridView();
+            this.buttonCalcReliabilityInterval = new System.Windows.Forms.Button();
+            this.numberOfStdForMaxLevel = new System.Windows.Forms.NumericUpDown();
+            this.labelNumberOfStdForMaxLevel = new System.Windows.Forms.Label();
+            this.numberOfValuesForNormLevel = new System.Windows.Forms.NumericUpDown();
+            this.labelNumberOfValuesForNormLevel = new System.Windows.Forms.Label();
+            this.indexOfMaxValue = new System.Windows.Forms.TextBox();
+            this.labelIndexWithMaxValue = new System.Windows.Forms.Label();
+            this.numberOfValuesInAcc = new System.Windows.Forms.TextBox();
+            this.labelNumberOfValuesInAcc = new System.Windows.Forms.Label();
             this.researchParametersTab = new System.Windows.Forms.TabPage();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.allStatisticList = new System.Windows.Forms.ListBox();
+            this.selectedStatisticList = new System.Windows.Forms.ListBox();
+            this.allStatisticLabel = new System.Windows.Forms.Label();
+            this.selectStatisticLabel = new System.Windows.Forms.Label();
+            this.toSelectList = new System.Windows.Forms.Button();
+            this.toAllList = new System.Windows.Forms.Button();
+            this.allToSelectList = new System.Windows.Forms.Button();
+            this.allToAllList = new System.Windows.Forms.Button();
+            this.numberOfMaxDeepLevel = new System.Windows.Forms.NumericUpDown();
+            this.maxDepthLabel = new System.Windows.Forms.Label();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).BeginInit();
             this.findReliabIntervalTab.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
             this.researchParametersTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -204,81 +214,38 @@
             this.findReliabIntervalTab.Text = "Расчет интервала надежности";
             this.findReliabIntervalTab.UseVisualStyleBackColor = true;
             // 
-            // labelNumberOfValuesInAcc
+            // progressBarReliability
             // 
-            this.labelNumberOfValuesInAcc.AutoSize = true;
-            this.labelNumberOfValuesInAcc.Location = new System.Drawing.Point(21, 23);
-            this.labelNumberOfValuesInAcc.Name = "labelNumberOfValuesInAcc";
-            this.labelNumberOfValuesInAcc.Size = new System.Drawing.Size(140, 26);
-            this.labelNumberOfValuesInAcc.TabIndex = 19;
-            this.labelNumberOfValuesInAcc.Text = "Количество наблюдений в\r\nвыбранной аварии:";
+            this.progressBarReliability.Location = new System.Drawing.Point(457, 357);
+            this.progressBarReliability.Margin = new System.Windows.Forms.Padding(2);
+            this.progressBarReliability.Name = "progressBarReliability";
+            this.progressBarReliability.Size = new System.Drawing.Size(341, 19);
+            this.progressBarReliability.TabIndex = 29;
+            this.progressBarReliability.Visible = false;
             // 
-            // numberOfValuesInAcc
+            // dataSignalReliability
             // 
-            this.numberOfValuesInAcc.Location = new System.Drawing.Point(175, 29);
-            this.numberOfValuesInAcc.Name = "numberOfValuesInAcc";
-            this.numberOfValuesInAcc.ReadOnly = true;
-            this.numberOfValuesInAcc.Size = new System.Drawing.Size(100, 20);
-            this.numberOfValuesInAcc.TabIndex = 20;
+            this.dataSignalReliability.AllowUserToAddRows = false;
+            this.dataSignalReliability.AllowUserToDeleteRows = false;
+            this.dataSignalReliability.AllowUserToResizeRows = false;
+            this.dataSignalReliability.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataSignalReliability.Location = new System.Drawing.Point(457, 23);
+            this.dataSignalReliability.Name = "dataSignalReliability";
+            this.dataSignalReliability.ReadOnly = true;
+            this.dataSignalReliability.RowHeadersWidth = 51;
+            this.dataSignalReliability.Size = new System.Drawing.Size(341, 353);
+            this.dataSignalReliability.TabIndex = 28;
             // 
-            // labelIndexWithMaxValue
+            // buttonCalcReliabilityInterval
             // 
-            this.labelIndexWithMaxValue.AutoSize = true;
-            this.labelIndexWithMaxValue.Location = new System.Drawing.Point(21, 79);
-            this.labelIndexWithMaxValue.Name = "labelIndexWithMaxValue";
-            this.labelIndexWithMaxValue.Size = new System.Drawing.Size(148, 26);
-            this.labelIndexWithMaxValue.TabIndex = 21;
-            this.labelIndexWithMaxValue.Text = "Индекс наблюдения с \r\nмаксимальным значением:";
-            // 
-            // indexOfMaxValue
-            // 
-            this.indexOfMaxValue.Location = new System.Drawing.Point(175, 85);
-            this.indexOfMaxValue.Name = "indexOfMaxValue";
-            this.indexOfMaxValue.ReadOnly = true;
-            this.indexOfMaxValue.Size = new System.Drawing.Size(100, 20);
-            this.indexOfMaxValue.TabIndex = 22;
-            // 
-            // labelNumberOfValuesForNormLevel
-            // 
-            this.labelNumberOfValuesForNormLevel.AutoSize = true;
-            this.labelNumberOfValuesForNormLevel.Location = new System.Drawing.Point(21, 166);
-            this.labelNumberOfValuesForNormLevel.Name = "labelNumberOfValuesForNormLevel";
-            this.labelNumberOfValuesForNormLevel.Size = new System.Drawing.Size(199, 26);
-            this.labelNumberOfValuesForNormLevel.TabIndex = 23;
-            this.labelNumberOfValuesForNormLevel.Text = "Количество наблюдений для\r\nподсчета уровня нормальной работы:";
-            // 
-            // numberOfValuesForNormLevel
-            // 
-            this.numberOfValuesForNormLevel.Location = new System.Drawing.Point(273, 172);
-            this.numberOfValuesForNormLevel.Maximum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numberOfValuesForNormLevel.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numberOfValuesForNormLevel.Name = "numberOfValuesForNormLevel";
-            this.numberOfValuesForNormLevel.Size = new System.Drawing.Size(120, 20);
-            this.numberOfValuesForNormLevel.TabIndex = 24;
-            this.numberOfValuesForNormLevel.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numberOfValuesForNormLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidateKeyPressedOnlyNums);
-            // 
-            // labelNumberOfStdForMaxLevel
-            // 
-            this.labelNumberOfStdForMaxLevel.AutoSize = true;
-            this.labelNumberOfStdForMaxLevel.Location = new System.Drawing.Point(21, 215);
-            this.labelNumberOfStdForMaxLevel.Name = "labelNumberOfStdForMaxLevel";
-            this.labelNumberOfStdForMaxLevel.Size = new System.Drawing.Size(246, 26);
-            this.labelNumberOfStdForMaxLevel.TabIndex = 25;
-            this.labelNumberOfStdForMaxLevel.Text = "Количество стандартных отклонения для\r\nподсчета максимального допустимого уровня:" +
-    "";
+            this.buttonCalcReliabilityInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonCalcReliabilityInterval.Location = new System.Drawing.Point(97, 310);
+            this.buttonCalcReliabilityInterval.Name = "buttonCalcReliabilityInterval";
+            this.buttonCalcReliabilityInterval.Size = new System.Drawing.Size(111, 44);
+            this.buttonCalcReliabilityInterval.TabIndex = 27;
+            this.buttonCalcReliabilityInterval.Text = "Рассчитать";
+            this.buttonCalcReliabilityInterval.UseVisualStyleBackColor = true;
+            this.buttonCalcReliabilityInterval.Click += new System.EventHandler(this.buttonCalcReliabilityInterval_Click);
             // 
             // numberOfStdForMaxLevel
             // 
@@ -303,42 +270,94 @@
             0,
             0});
             // 
-            // buttonCalcReliabilityInterval
+            // labelNumberOfStdForMaxLevel
             // 
-            this.buttonCalcReliabilityInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonCalcReliabilityInterval.Location = new System.Drawing.Point(97, 310);
-            this.buttonCalcReliabilityInterval.Name = "buttonCalcReliabilityInterval";
-            this.buttonCalcReliabilityInterval.Size = new System.Drawing.Size(111, 44);
-            this.buttonCalcReliabilityInterval.TabIndex = 27;
-            this.buttonCalcReliabilityInterval.Text = "Рассчитать";
-            this.buttonCalcReliabilityInterval.UseVisualStyleBackColor = true;
-            this.buttonCalcReliabilityInterval.Click += new System.EventHandler(this.buttonCalcReliabilityInterval_Click);
+            this.labelNumberOfStdForMaxLevel.AutoSize = true;
+            this.labelNumberOfStdForMaxLevel.Location = new System.Drawing.Point(21, 215);
+            this.labelNumberOfStdForMaxLevel.Name = "labelNumberOfStdForMaxLevel";
+            this.labelNumberOfStdForMaxLevel.Size = new System.Drawing.Size(246, 26);
+            this.labelNumberOfStdForMaxLevel.TabIndex = 25;
+            this.labelNumberOfStdForMaxLevel.Text = "Количество стандартных отклонения для\r\nподсчета максимального допустимого уровня:" +
+    "";
             // 
-            // dataSignalReliability
+            // numberOfValuesForNormLevel
             // 
-            this.dataSignalReliability.AllowUserToAddRows = false;
-            this.dataSignalReliability.AllowUserToDeleteRows = false;
-            this.dataSignalReliability.AllowUserToResizeRows = false;
-            this.dataSignalReliability.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataSignalReliability.Location = new System.Drawing.Point(457, 23);
-            this.dataSignalReliability.Name = "dataSignalReliability";
-            this.dataSignalReliability.ReadOnly = true;
-            this.dataSignalReliability.RowHeadersWidth = 51;
-            this.dataSignalReliability.Size = new System.Drawing.Size(341, 353);
-            this.dataSignalReliability.TabIndex = 28;
+            this.numberOfValuesForNormLevel.Location = new System.Drawing.Point(273, 172);
+            this.numberOfValuesForNormLevel.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfValuesForNormLevel.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfValuesForNormLevel.Name = "numberOfValuesForNormLevel";
+            this.numberOfValuesForNormLevel.Size = new System.Drawing.Size(120, 20);
+            this.numberOfValuesForNormLevel.TabIndex = 24;
+            this.numberOfValuesForNormLevel.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfValuesForNormLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidateKeyPressedOnlyNums);
             // 
-            // progressBarReliability
+            // labelNumberOfValuesForNormLevel
             // 
-            this.progressBarReliability.Location = new System.Drawing.Point(457, 357);
-            this.progressBarReliability.Margin = new System.Windows.Forms.Padding(2);
-            this.progressBarReliability.Name = "progressBarReliability";
-            this.progressBarReliability.Size = new System.Drawing.Size(341, 19);
-            this.progressBarReliability.TabIndex = 29;
-            this.progressBarReliability.Visible = false;
+            this.labelNumberOfValuesForNormLevel.AutoSize = true;
+            this.labelNumberOfValuesForNormLevel.Location = new System.Drawing.Point(21, 166);
+            this.labelNumberOfValuesForNormLevel.Name = "labelNumberOfValuesForNormLevel";
+            this.labelNumberOfValuesForNormLevel.Size = new System.Drawing.Size(199, 26);
+            this.labelNumberOfValuesForNormLevel.TabIndex = 23;
+            this.labelNumberOfValuesForNormLevel.Text = "Количество наблюдений для\r\nподсчета уровня нормальной работы:";
+            // 
+            // indexOfMaxValue
+            // 
+            this.indexOfMaxValue.Location = new System.Drawing.Point(175, 85);
+            this.indexOfMaxValue.Name = "indexOfMaxValue";
+            this.indexOfMaxValue.ReadOnly = true;
+            this.indexOfMaxValue.Size = new System.Drawing.Size(100, 20);
+            this.indexOfMaxValue.TabIndex = 22;
+            // 
+            // labelIndexWithMaxValue
+            // 
+            this.labelIndexWithMaxValue.AutoSize = true;
+            this.labelIndexWithMaxValue.Location = new System.Drawing.Point(21, 79);
+            this.labelIndexWithMaxValue.Name = "labelIndexWithMaxValue";
+            this.labelIndexWithMaxValue.Size = new System.Drawing.Size(148, 26);
+            this.labelIndexWithMaxValue.TabIndex = 21;
+            this.labelIndexWithMaxValue.Text = "Индекс наблюдения с \r\nмаксимальным значением:";
+            // 
+            // numberOfValuesInAcc
+            // 
+            this.numberOfValuesInAcc.Location = new System.Drawing.Point(175, 29);
+            this.numberOfValuesInAcc.Name = "numberOfValuesInAcc";
+            this.numberOfValuesInAcc.ReadOnly = true;
+            this.numberOfValuesInAcc.Size = new System.Drawing.Size(100, 20);
+            this.numberOfValuesInAcc.TabIndex = 20;
+            // 
+            // labelNumberOfValuesInAcc
+            // 
+            this.labelNumberOfValuesInAcc.AutoSize = true;
+            this.labelNumberOfValuesInAcc.Location = new System.Drawing.Point(21, 23);
+            this.labelNumberOfValuesInAcc.Name = "labelNumberOfValuesInAcc";
+            this.labelNumberOfValuesInAcc.Size = new System.Drawing.Size(140, 26);
+            this.labelNumberOfValuesInAcc.TabIndex = 19;
+            this.labelNumberOfValuesInAcc.Text = "Количество наблюдений в\r\nвыбранной аварии:";
             // 
             // researchParametersTab
             // 
-            this.researchParametersTab.Controls.Add(this.listBox1);
+            this.researchParametersTab.Controls.Add(this.maxDepthLabel);
+            this.researchParametersTab.Controls.Add(this.numberOfMaxDeepLevel);
+            this.researchParametersTab.Controls.Add(this.allToAllList);
+            this.researchParametersTab.Controls.Add(this.allToSelectList);
+            this.researchParametersTab.Controls.Add(this.toAllList);
+            this.researchParametersTab.Controls.Add(this.toSelectList);
+            this.researchParametersTab.Controls.Add(this.selectStatisticLabel);
+            this.researchParametersTab.Controls.Add(this.allStatisticLabel);
+            this.researchParametersTab.Controls.Add(this.selectedStatisticList);
+            this.researchParametersTab.Controls.Add(this.allStatisticList);
             this.researchParametersTab.Location = new System.Drawing.Point(4, 22);
             this.researchParametersTab.Name = "researchParametersTab";
             this.researchParametersTab.Size = new System.Drawing.Size(816, 390);
@@ -346,13 +365,113 @@
             this.researchParametersTab.Text = "Параметры исследования";
             this.researchParametersTab.UseVisualStyleBackColor = true;
             // 
-            // listBox1
+            // allStatisticList
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(27, 35);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(164, 251);
-            this.listBox1.TabIndex = 0;
+            this.allStatisticList.FormattingEnabled = true;
+            this.allStatisticList.Location = new System.Drawing.Point(575, 63);
+            this.allStatisticList.Name = "allStatisticList";
+            this.allStatisticList.Size = new System.Drawing.Size(233, 303);
+            this.allStatisticList.TabIndex = 0;
+            this.allStatisticList.DoubleClick += new System.EventHandler(this.allStatisticList_DoubleClick);
+            // 
+            // selectedStatisticList
+            // 
+            this.selectedStatisticList.FormattingEnabled = true;
+            this.selectedStatisticList.Location = new System.Drawing.Point(274, 63);
+            this.selectedStatisticList.Name = "selectedStatisticList";
+            this.selectedStatisticList.Size = new System.Drawing.Size(233, 303);
+            this.selectedStatisticList.TabIndex = 1;
+            this.selectedStatisticList.DoubleClick += new System.EventHandler(this.selectedStatisticList_DoubleClick);
+            // 
+            // allStatisticLabel
+            // 
+            this.allStatisticLabel.AutoSize = true;
+            this.allStatisticLabel.Location = new System.Drawing.Point(572, 25);
+            this.allStatisticLabel.Name = "allStatisticLabel";
+            this.allStatisticLabel.Size = new System.Drawing.Size(150, 26);
+            this.allStatisticLabel.TabIndex = 2;
+            this.allStatisticLabel.Text = "Доступные статистические \r\nхарактеристики:";
+            // 
+            // selectStatisticLabel
+            // 
+            this.selectStatisticLabel.AutoSize = true;
+            this.selectStatisticLabel.Location = new System.Drawing.Point(271, 25);
+            this.selectStatisticLabel.Name = "selectStatisticLabel";
+            this.selectStatisticLabel.Size = new System.Drawing.Size(152, 26);
+            this.selectStatisticLabel.TabIndex = 3;
+            this.selectStatisticLabel.Text = "Выбранные статистические \r\nхарактеристики:";
+            // 
+            // toSelectList
+            // 
+            this.toSelectList.Location = new System.Drawing.Point(527, 114);
+            this.toSelectList.Name = "toSelectList";
+            this.toSelectList.Size = new System.Drawing.Size(29, 24);
+            this.toSelectList.TabIndex = 4;
+            this.toSelectList.Text = "<";
+            this.toSelectList.UseVisualStyleBackColor = true;
+            this.toSelectList.Click += new System.EventHandler(this.toSelectList_Click);
+            // 
+            // toAllList
+            // 
+            this.toAllList.Location = new System.Drawing.Point(527, 144);
+            this.toAllList.Name = "toAllList";
+            this.toAllList.Size = new System.Drawing.Size(29, 24);
+            this.toAllList.TabIndex = 5;
+            this.toAllList.Text = ">";
+            this.toAllList.UseVisualStyleBackColor = true;
+            this.toAllList.Click += new System.EventHandler(this.toAllList_Click);
+            // 
+            // allToSelectList
+            // 
+            this.allToSelectList.Location = new System.Drawing.Point(527, 198);
+            this.allToSelectList.Name = "allToSelectList";
+            this.allToSelectList.Size = new System.Drawing.Size(29, 24);
+            this.allToSelectList.TabIndex = 6;
+            this.allToSelectList.Text = "<<";
+            this.allToSelectList.UseVisualStyleBackColor = true;
+            this.allToSelectList.Click += new System.EventHandler(this.allToSelectList_Click);
+            // 
+            // allToAllList
+            // 
+            this.allToAllList.Location = new System.Drawing.Point(527, 228);
+            this.allToAllList.Name = "allToAllList";
+            this.allToAllList.Size = new System.Drawing.Size(29, 24);
+            this.allToAllList.TabIndex = 7;
+            this.allToAllList.Text = ">>";
+            this.allToAllList.UseVisualStyleBackColor = true;
+            this.allToAllList.Click += new System.EventHandler(this.allToAllList_Click);
+            // 
+            // numberOfMaxDeepLevel
+            // 
+            this.numberOfMaxDeepLevel.Location = new System.Drawing.Point(153, 58);
+            this.numberOfMaxDeepLevel.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfMaxDeepLevel.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfMaxDeepLevel.Name = "numberOfMaxDeepLevel";
+            this.numberOfMaxDeepLevel.Size = new System.Drawing.Size(75, 20);
+            this.numberOfMaxDeepLevel.TabIndex = 25;
+            this.numberOfMaxDeepLevel.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfMaxDeepLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidateKeyPressedOnlyNums);
+            // 
+            // maxDepthLabel
+            // 
+            this.maxDepthLabel.AutoSize = true;
+            this.maxDepthLabel.Location = new System.Drawing.Point(17, 60);
+            this.maxDepthLabel.Name = "maxDepthLabel";
+            this.maxDepthLabel.Size = new System.Drawing.Size(130, 13);
+            this.maxDepthLabel.TabIndex = 26;
+            this.maxDepthLabel.Text = "Максимальная глубина:";
             // 
             // MainFrom
             // 
@@ -376,10 +495,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.accidentsData)).EndInit();
             this.findReliabIntervalTab.ResumeLayout(false);
             this.findReliabIntervalTab.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSignalReliability)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfStdForMaxLevel)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).EndInit();
             this.researchParametersTab.ResumeLayout(false);
+            this.researchParametersTab.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -412,7 +533,16 @@
         private System.Windows.Forms.TextBox numberOfValuesInAcc;
         private System.Windows.Forms.Label labelNumberOfValuesInAcc;
         private System.Windows.Forms.TabPage researchParametersTab;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox allStatisticList;
+        private System.Windows.Forms.Button allToAllList;
+        private System.Windows.Forms.Button allToSelectList;
+        private System.Windows.Forms.Button toAllList;
+        private System.Windows.Forms.Button toSelectList;
+        private System.Windows.Forms.Label selectStatisticLabel;
+        private System.Windows.Forms.Label allStatisticLabel;
+        private System.Windows.Forms.ListBox selectedStatisticList;
+        private System.Windows.Forms.Label maxDepthLabel;
+        private System.Windows.Forms.NumericUpDown numberOfMaxDeepLevel;
     }
 }
 

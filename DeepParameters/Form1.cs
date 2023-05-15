@@ -13,6 +13,8 @@ using System.Windows.Forms;
 
 namespace DeepParameters {
     public partial class MainFrom : Form {
+        private const double MAX_NUMBER_VALUES_FOR_DEEP_LEVEL = 20;
+
         private IFileService fileService;
         private IDialogService dialogService = new DefaultDialogService();
 
@@ -20,13 +22,11 @@ namespace DeepParameters {
         private string AccidentHeader { get; set; }
         private List<double> ReliabilityInterval { get; set; } = new List<double>();
 
-        BackgroundWorker resizeWorker = new BackgroundWorker();
-        bool isResizeNeeded = false;
+        private BackgroundWorker resizeWorker = new BackgroundWorker();
+        private bool isResizeNeeded = false;
 
         public MainFrom() {
             InitializeComponent();
-
-            MessageBox.Show(Statistics.StandardDeviationOnInterval_0_1(new List<double>() { 1, 2, 3}).ToString());
 
             // Centered Main From on the screen
             this.CenterToScreen();
@@ -272,6 +272,12 @@ namespace DeepParameters {
 
             ClearControlsStep3();
             // Установка значений для следующего шага
+            AddStatisticsToList();
+
+            numberOfMaxDeepLevel.Maximum = Convert.ToDecimal(Math.Truncate(Math.Pow(Convert.ToDouble(indexOfMaxValue.Text), 
+                (1.0 / MAX_NUMBER_VALUES_FOR_DEEP_LEVEL))));
+
+            researchParametersTab.Enabled = true;
         }
 
         /// <summary>
@@ -323,7 +329,7 @@ namespace DeepParameters {
 
                 // Add vibration value with reliability to data grid view
                 dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
-                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() });
+                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() + "%" });
             }
 
             // Hide progress bar
@@ -334,6 +340,83 @@ namespace DeepParameters {
                 new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
 
             bgWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Add all statistics to list
+        /// </summary>
+        private void AddStatisticsToList() {
+            foreach (string key in Statistics.Functions.Keys) {
+                allStatisticList.Items.Add(key);
+            }
+        }
+
+        private void toSelectList_Click(object sender, EventArgs e) {
+            AddItemToSelectedList();
+        }
+
+        private void allStatisticList_DoubleClick(object sender, EventArgs e) {
+            AddItemToSelectedList();
+        }
+
+        private void toAllList_Click(object sender, EventArgs e) {
+            AddItemToAllList();
+        }
+
+        private void selectedStatisticList_DoubleClick(object sender, EventArgs e) {
+            AddItemToAllList();
+        }
+
+        /// <summary>
+        /// Move selected item from all list to selected list
+        /// </summary>
+        private void AddItemToSelectedList() {
+            if (allStatisticList.SelectedItems.Count == 1) {
+                int selectedIndex = allStatisticList.SelectedIndex;
+                selectedStatisticList.Items.Add(allStatisticList.SelectedItem);
+                allStatisticList.Items.Remove(allStatisticList.SelectedItem);
+                if (allStatisticList.Items.Count > 0) {
+                    if (selectedIndex < allStatisticList.Items.Count) {
+                        allStatisticList.SelectedIndex = selectedIndex;
+                    }
+                    else {
+                        allStatisticList.SelectedIndex = selectedIndex - 1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Move selected item from selected list to all list
+        /// </summary>
+        private void AddItemToAllList() {
+            if (selectedStatisticList.SelectedItems.Count == 1) {
+                int selectedIndex = selectedStatisticList.SelectedIndex;
+                allStatisticList.Items.Add(selectedStatisticList.SelectedItem);
+                selectedStatisticList.Items.Remove(selectedStatisticList.SelectedItem);
+                if (selectedStatisticList.Items.Count > 0) {
+                    if (selectedIndex < selectedStatisticList.Items.Count) {
+                        selectedStatisticList.SelectedIndex = selectedIndex;
+                    }
+                    else {
+                        selectedStatisticList.SelectedIndex = selectedIndex - 1;
+                    }
+                }
+            }
+        }
+
+        private void allToSelectList_Click(object sender, EventArgs e) {
+            if (allStatisticList.Items.Count > 0) {
+                selectedStatisticList.Items.AddRange(allStatisticList.Items);
+                allStatisticList.Items.Clear();
+            }
+        }
+
+        private void allToAllList_Click(object sender, EventArgs e) {
+            if (selectedStatisticList.Items.Count > 0) {
+                allStatisticList.Items.AddRange(selectedStatisticList.Items);
+                selectedStatisticList.Items.Clear();
+            }
         }
 
         /// <summary>
