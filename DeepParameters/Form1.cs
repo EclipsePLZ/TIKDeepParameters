@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace DeepParameters {
     public partial class MainFrom : Form {
-        private const double MAX_NUMBER_VALUES_FOR_DEEP_LEVEL = 20;
+        private const double MIN_NUMBER_VALUES_FOR_DEEP_LEVEL = 20;
 
         private IFileService fileService;
         private IDialogService dialogService = new DefaultDialogService();
@@ -241,7 +241,7 @@ namespace DeepParameters {
 
             // Fill AccidentValues list from dataGridView
             for(int row = 0; row < accidentsData.Rows.Count; row++) {
-                if (accidentsData[selectedAccidentIndex, row].Value != "") {
+                if (accidentsData[selectedAccidentIndex, row].Value.ToString() != "") {
                     AccidentValues.Add(Convert.ToDouble(accidentsData[selectedAccidentIndex, row].Value));
                 }
             }
@@ -263,19 +263,20 @@ namespace DeepParameters {
             ReliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
                 Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
 
-            int currReliab = 0;
-
             // Clear data grid view
             ClearDataGV(dataSignalReliability);
 
             RunBackgrounWorkerGetReliabilityForSignal();
 
             ClearControlsStep3();
-            // Установка значений для следующего шага
+            
+            // Set values for third step
             AddStatisticsToList();
 
-            numberOfMaxDeepLevel.Maximum = Convert.ToDecimal(Math.Truncate(Math.Pow(Convert.ToDouble(indexOfMaxValue.Text), 
-                (1.0 / MAX_NUMBER_VALUES_FOR_DEEP_LEVEL))));
+            numberOfMaxDeepLevel.Maximum = Convert.ToDecimal(Math.Truncate(Math.Log
+                (Convert.ToDouble(indexOfMaxValue.Text), MIN_NUMBER_VALUES_FOR_DEEP_LEVEL)));
+
+            deepLevelInfo.Items.Add(GetNewRowOfDeepLevel(1));
 
             researchParametersTab.Enabled = true;
         }
@@ -383,6 +384,7 @@ namespace DeepParameters {
                         allStatisticList.SelectedIndex = selectedIndex - 1;
                     }
                 }
+                CheckRulesForAcceptParamters();
             }
         }
 
@@ -402,6 +404,7 @@ namespace DeepParameters {
                         selectedStatisticList.SelectedIndex = selectedIndex - 1;
                     }
                 }
+                CheckRulesForAcceptParamters();
             }
         }
 
@@ -409,6 +412,7 @@ namespace DeepParameters {
             if (allStatisticList.Items.Count > 0) {
                 selectedStatisticList.Items.AddRange(allStatisticList.Items);
                 allStatisticList.Items.Clear();
+                CheckRulesForAcceptParamters();
             }
         }
 
@@ -416,7 +420,113 @@ namespace DeepParameters {
             if (selectedStatisticList.Items.Count > 0) {
                 allStatisticList.Items.AddRange(selectedStatisticList.Items);
                 selectedStatisticList.Items.Clear();
+                CheckRulesForAcceptParamters();
             }
+        }
+
+        /// <summary>
+        /// Checking rules for enable accept button
+        /// </summary>
+        private void CheckRulesForAcceptParamters() {
+            if (selectedStatisticList.Items.Count > 0) {
+                calcDeepLevelsButton.Enabled = true;
+            }
+            else {
+                calcDeepLevelsButton.Enabled = false;
+            }
+        }
+
+        private void numberOfMaxDeepLevel_ValueChanged(object sender, EventArgs e) {
+            // Add new deep levels to list
+            if (numberOfMaxDeepLevel.Value > deepLevelInfo.Items.Count) {
+                int numberOfNewLevels = (int)numberOfMaxDeepLevel.Value - deepLevelInfo.Items.Count;
+                int lastLevelInlist = deepLevelInfo.Items.Count;
+
+                for (int i = 1; i <= numberOfNewLevels; i++) {
+                    deepLevelInfo.Items.Add(GetNewRowOfDeepLevel(lastLevelInlist + i));
+                    int requiredNumberOfObser = CalcRequireNumberOfObservations();
+                    if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
+                        deepLevelInfo.Items.RemoveAt(deepLevelInfo.Items.Count - 1);
+                        ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+                        numberOfMaxDeepLevel.Value = numberOfMaxDeepLevel.Value + i - 2;
+                        break;
+                    }
+                }
+            }
+            // Remove deep levels from list
+            else if (numberOfMaxDeepLevel.Value < deepLevelInfo.Items.Count) {
+                int numberOfLevelToRemove = deepLevelInfo.Items.Count - (int)numberOfMaxDeepLevel.Value;
+
+                for (int i = 0; i < numberOfLevelToRemove; i++) {
+                    deepLevelInfo.Items.RemoveAt(deepLevelInfo.Items.Count - 1);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Get row with infromation about deeo level
+        /// </summary>
+        /// <param name="level">Number of deep level</param>
+        /// <param name="numberOfInterval">Number of values for calc of statistics</param>
+        /// <returns>Row with information aboout deep level</returns>
+        private string GetNewRowOfDeepLevel(int level, int numberOfInterval = (int)MIN_NUMBER_VALUES_FOR_DEEP_LEVEL) {
+            return $"Уровень {level}: {numberOfInterval} наблюдений";
+        }
+
+        /// <summary>
+        /// Show form for changing number of values for deep parameters
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deepLevelInfo_MouseDoubleClick(object sender, MouseEventArgs e) {
+            int oldNumValues = Convert.ToInt32(GetNumberOfObservationsFromLevel(deepLevelInfo.SelectedItem.ToString()));
+            int selectIndex = deepLevelInfo.SelectedIndex;
+            ChangeLevelValueForm formChangeValue = new ChangeLevelValueForm(selectIndex + 1, oldNumValues);
+            formChangeValue.ShowDialog();
+
+            deepLevelInfo.Items.RemoveAt(selectIndex);
+            deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, formChangeValue.NumberOfValuesForLevel));
+
+            // if number of require observations more than we have, then return the previous value
+            int requiredNumberOfObser = CalcRequireNumberOfObservations();
+            if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
+                deepLevelInfo.Items.RemoveAt(selectIndex);
+                deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, oldNumValues));
+                ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+            }
+        }
+
+        /// <summary>
+        /// Show message that we have to much require number of observations
+        /// </summary>
+        /// <param name="maxObser">Max number of available observations</param>
+        /// <param name="requiredNumberOfObser">Number of requiredNumberOfObser</param>
+        private void ShowTooMuchIntervalInLevel(int maxObser, int requiredNumberOfObser) {
+            MessageBox.Show("При заданном значении интервала невозможно построить необходимый глубинный уровень\n" +
+                    $"Общее количество наблюдений: {maxObser}\n" +
+                    $"Необходимое количество наблюдений: {requiredNumberOfObser}");
+        }
+
+        /// <summary>
+        /// Calculating the required number of observations for find all statistics
+        /// </summary>
+        /// <returns></returns>
+        private int CalcRequireNumberOfObservations() {
+            int result = 1;
+            foreach (var row in deepLevelInfo.Items) {
+                result *= GetNumberOfObservationsFromLevel(row.ToString());
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get number of observations from one row from list of levels
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private int GetNumberOfObservationsFromLevel(string row) {
+            return Convert.ToInt32(row.Split()[2]);
         }
 
         /// <summary>
@@ -431,6 +541,9 @@ namespace DeepParameters {
                     break;
                 case 1:
                     helpAllSteps.ToolTipText = StepsInfo.Step2;
+                    break;
+                case 2:
+                    helpAllSteps.ToolTipText = StepsInfo.Step3;
                     break;
             }
         }

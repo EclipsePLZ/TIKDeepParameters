@@ -49,16 +49,19 @@
             this.numberOfValuesInAcc = new System.Windows.Forms.TextBox();
             this.labelNumberOfValuesInAcc = new System.Windows.Forms.Label();
             this.researchParametersTab = new System.Windows.Forms.TabPage();
-            this.allStatisticList = new System.Windows.Forms.ListBox();
-            this.selectedStatisticList = new System.Windows.Forms.ListBox();
-            this.allStatisticLabel = new System.Windows.Forms.Label();
-            this.selectStatisticLabel = new System.Windows.Forms.Label();
-            this.toSelectList = new System.Windows.Forms.Button();
-            this.toAllList = new System.Windows.Forms.Button();
-            this.allToSelectList = new System.Windows.Forms.Button();
-            this.allToAllList = new System.Windows.Forms.Button();
-            this.numberOfMaxDeepLevel = new System.Windows.Forms.NumericUpDown();
+            this.calcDeepLevelsButton = new System.Windows.Forms.Button();
+            this.deepLevelInfoLabel = new System.Windows.Forms.Label();
+            this.deepLevelInfo = new System.Windows.Forms.ListBox();
             this.maxDepthLabel = new System.Windows.Forms.Label();
+            this.numberOfMaxDeepLevel = new System.Windows.Forms.NumericUpDown();
+            this.allToAllList = new System.Windows.Forms.Button();
+            this.allToSelectList = new System.Windows.Forms.Button();
+            this.toAllList = new System.Windows.Forms.Button();
+            this.toSelectList = new System.Windows.Forms.Button();
+            this.selectStatisticLabel = new System.Windows.Forms.Label();
+            this.allStatisticLabel = new System.Windows.Forms.Label();
+            this.selectedStatisticList = new System.Windows.Forms.ListBox();
+            this.allStatisticList = new System.Windows.Forms.ListBox();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -348,6 +351,9 @@
             // 
             // researchParametersTab
             // 
+            this.researchParametersTab.Controls.Add(this.calcDeepLevelsButton);
+            this.researchParametersTab.Controls.Add(this.deepLevelInfoLabel);
+            this.researchParametersTab.Controls.Add(this.deepLevelInfo);
             this.researchParametersTab.Controls.Add(this.maxDepthLabel);
             this.researchParametersTab.Controls.Add(this.numberOfMaxDeepLevel);
             this.researchParametersTab.Controls.Add(this.allToAllList);
@@ -365,81 +371,43 @@
             this.researchParametersTab.Text = "Параметры исследования";
             this.researchParametersTab.UseVisualStyleBackColor = true;
             // 
-            // allStatisticList
+            // calcDeepLevelsButton
             // 
-            this.allStatisticList.FormattingEnabled = true;
-            this.allStatisticList.Location = new System.Drawing.Point(575, 63);
-            this.allStatisticList.Name = "allStatisticList";
-            this.allStatisticList.Size = new System.Drawing.Size(233, 303);
-            this.allStatisticList.TabIndex = 0;
-            this.allStatisticList.DoubleClick += new System.EventHandler(this.allStatisticList_DoubleClick);
+            this.calcDeepLevelsButton.Enabled = false;
+            this.calcDeepLevelsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.calcDeepLevelsButton.Location = new System.Drawing.Point(75, 322);
+            this.calcDeepLevelsButton.Name = "calcDeepLevelsButton";
+            this.calcDeepLevelsButton.Size = new System.Drawing.Size(111, 44);
+            this.calcDeepLevelsButton.TabIndex = 29;
+            this.calcDeepLevelsButton.Text = "Подтвердить";
+            this.calcDeepLevelsButton.UseVisualStyleBackColor = true;
             // 
-            // selectedStatisticList
+            // deepLevelInfoLabel
             // 
-            this.selectedStatisticList.FormattingEnabled = true;
-            this.selectedStatisticList.Location = new System.Drawing.Point(274, 63);
-            this.selectedStatisticList.Name = "selectedStatisticList";
-            this.selectedStatisticList.Size = new System.Drawing.Size(233, 303);
-            this.selectedStatisticList.TabIndex = 1;
-            this.selectedStatisticList.DoubleClick += new System.EventHandler(this.selectedStatisticList_DoubleClick);
+            this.deepLevelInfoLabel.AutoSize = true;
+            this.deepLevelInfoLabel.Location = new System.Drawing.Point(30, 98);
+            this.deepLevelInfoLabel.Name = "deepLevelInfoLabel";
+            this.deepLevelInfoLabel.Size = new System.Drawing.Size(169, 13);
+            this.deepLevelInfoLabel.TabIndex = 28;
+            this.deepLevelInfoLabel.Text = "Параметры глубинных уровней:";
             // 
-            // allStatisticLabel
+            // deepLevelInfo
             // 
-            this.allStatisticLabel.AutoSize = true;
-            this.allStatisticLabel.Location = new System.Drawing.Point(572, 25);
-            this.allStatisticLabel.Name = "allStatisticLabel";
-            this.allStatisticLabel.Size = new System.Drawing.Size(150, 26);
-            this.allStatisticLabel.TabIndex = 2;
-            this.allStatisticLabel.Text = "Доступные статистические \r\nхарактеристики:";
+            this.deepLevelInfo.FormattingEnabled = true;
+            this.deepLevelInfo.Location = new System.Drawing.Point(33, 114);
+            this.deepLevelInfo.Name = "deepLevelInfo";
+            this.deepLevelInfo.Size = new System.Drawing.Size(195, 186);
+            this.deepLevelInfo.TabIndex = 27;
+            this.deepLevelInfo.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.deepLevelInfo_MouseDoubleClick);
             // 
-            // selectStatisticLabel
+            // maxDepthLabel
             // 
-            this.selectStatisticLabel.AutoSize = true;
-            this.selectStatisticLabel.Location = new System.Drawing.Point(271, 25);
-            this.selectStatisticLabel.Name = "selectStatisticLabel";
-            this.selectStatisticLabel.Size = new System.Drawing.Size(152, 26);
-            this.selectStatisticLabel.TabIndex = 3;
-            this.selectStatisticLabel.Text = "Выбранные статистические \r\nхарактеристики:";
-            // 
-            // toSelectList
-            // 
-            this.toSelectList.Location = new System.Drawing.Point(527, 114);
-            this.toSelectList.Name = "toSelectList";
-            this.toSelectList.Size = new System.Drawing.Size(29, 24);
-            this.toSelectList.TabIndex = 4;
-            this.toSelectList.Text = "<";
-            this.toSelectList.UseVisualStyleBackColor = true;
-            this.toSelectList.Click += new System.EventHandler(this.toSelectList_Click);
-            // 
-            // toAllList
-            // 
-            this.toAllList.Location = new System.Drawing.Point(527, 144);
-            this.toAllList.Name = "toAllList";
-            this.toAllList.Size = new System.Drawing.Size(29, 24);
-            this.toAllList.TabIndex = 5;
-            this.toAllList.Text = ">";
-            this.toAllList.UseVisualStyleBackColor = true;
-            this.toAllList.Click += new System.EventHandler(this.toAllList_Click);
-            // 
-            // allToSelectList
-            // 
-            this.allToSelectList.Location = new System.Drawing.Point(527, 198);
-            this.allToSelectList.Name = "allToSelectList";
-            this.allToSelectList.Size = new System.Drawing.Size(29, 24);
-            this.allToSelectList.TabIndex = 6;
-            this.allToSelectList.Text = "<<";
-            this.allToSelectList.UseVisualStyleBackColor = true;
-            this.allToSelectList.Click += new System.EventHandler(this.allToSelectList_Click);
-            // 
-            // allToAllList
-            // 
-            this.allToAllList.Location = new System.Drawing.Point(527, 228);
-            this.allToAllList.Name = "allToAllList";
-            this.allToAllList.Size = new System.Drawing.Size(29, 24);
-            this.allToAllList.TabIndex = 7;
-            this.allToAllList.Text = ">>";
-            this.allToAllList.UseVisualStyleBackColor = true;
-            this.allToAllList.Click += new System.EventHandler(this.allToAllList_Click);
+            this.maxDepthLabel.AutoSize = true;
+            this.maxDepthLabel.Location = new System.Drawing.Point(17, 60);
+            this.maxDepthLabel.Name = "maxDepthLabel";
+            this.maxDepthLabel.Size = new System.Drawing.Size(130, 13);
+            this.maxDepthLabel.TabIndex = 26;
+            this.maxDepthLabel.Text = "Максимальная глубина:";
             // 
             // numberOfMaxDeepLevel
             // 
@@ -462,16 +430,84 @@
             0,
             0,
             0});
+            this.numberOfMaxDeepLevel.ValueChanged += new System.EventHandler(this.numberOfMaxDeepLevel_ValueChanged);
             this.numberOfMaxDeepLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ValidateKeyPressedOnlyNums);
             // 
-            // maxDepthLabel
+            // allToAllList
             // 
-            this.maxDepthLabel.AutoSize = true;
-            this.maxDepthLabel.Location = new System.Drawing.Point(17, 60);
-            this.maxDepthLabel.Name = "maxDepthLabel";
-            this.maxDepthLabel.Size = new System.Drawing.Size(130, 13);
-            this.maxDepthLabel.TabIndex = 26;
-            this.maxDepthLabel.Text = "Максимальная глубина:";
+            this.allToAllList.Location = new System.Drawing.Point(527, 228);
+            this.allToAllList.Name = "allToAllList";
+            this.allToAllList.Size = new System.Drawing.Size(29, 24);
+            this.allToAllList.TabIndex = 7;
+            this.allToAllList.Text = ">>";
+            this.allToAllList.UseVisualStyleBackColor = true;
+            this.allToAllList.Click += new System.EventHandler(this.allToAllList_Click);
+            // 
+            // allToSelectList
+            // 
+            this.allToSelectList.Location = new System.Drawing.Point(527, 198);
+            this.allToSelectList.Name = "allToSelectList";
+            this.allToSelectList.Size = new System.Drawing.Size(29, 24);
+            this.allToSelectList.TabIndex = 6;
+            this.allToSelectList.Text = "<<";
+            this.allToSelectList.UseVisualStyleBackColor = true;
+            this.allToSelectList.Click += new System.EventHandler(this.allToSelectList_Click);
+            // 
+            // toAllList
+            // 
+            this.toAllList.Location = new System.Drawing.Point(527, 144);
+            this.toAllList.Name = "toAllList";
+            this.toAllList.Size = new System.Drawing.Size(29, 24);
+            this.toAllList.TabIndex = 5;
+            this.toAllList.Text = ">";
+            this.toAllList.UseVisualStyleBackColor = true;
+            this.toAllList.Click += new System.EventHandler(this.toAllList_Click);
+            // 
+            // toSelectList
+            // 
+            this.toSelectList.Location = new System.Drawing.Point(527, 114);
+            this.toSelectList.Name = "toSelectList";
+            this.toSelectList.Size = new System.Drawing.Size(29, 24);
+            this.toSelectList.TabIndex = 4;
+            this.toSelectList.Text = "<";
+            this.toSelectList.UseVisualStyleBackColor = true;
+            this.toSelectList.Click += new System.EventHandler(this.toSelectList_Click);
+            // 
+            // selectStatisticLabel
+            // 
+            this.selectStatisticLabel.AutoSize = true;
+            this.selectStatisticLabel.Location = new System.Drawing.Point(271, 25);
+            this.selectStatisticLabel.Name = "selectStatisticLabel";
+            this.selectStatisticLabel.Size = new System.Drawing.Size(152, 26);
+            this.selectStatisticLabel.TabIndex = 3;
+            this.selectStatisticLabel.Text = "Выбранные статистические \r\nхарактеристики:";
+            // 
+            // allStatisticLabel
+            // 
+            this.allStatisticLabel.AutoSize = true;
+            this.allStatisticLabel.Location = new System.Drawing.Point(572, 25);
+            this.allStatisticLabel.Name = "allStatisticLabel";
+            this.allStatisticLabel.Size = new System.Drawing.Size(150, 26);
+            this.allStatisticLabel.TabIndex = 2;
+            this.allStatisticLabel.Text = "Доступные статистические \r\nхарактеристики:";
+            // 
+            // selectedStatisticList
+            // 
+            this.selectedStatisticList.FormattingEnabled = true;
+            this.selectedStatisticList.Location = new System.Drawing.Point(274, 63);
+            this.selectedStatisticList.Name = "selectedStatisticList";
+            this.selectedStatisticList.Size = new System.Drawing.Size(233, 303);
+            this.selectedStatisticList.TabIndex = 1;
+            this.selectedStatisticList.DoubleClick += new System.EventHandler(this.selectedStatisticList_DoubleClick);
+            // 
+            // allStatisticList
+            // 
+            this.allStatisticList.FormattingEnabled = true;
+            this.allStatisticList.Location = new System.Drawing.Point(575, 63);
+            this.allStatisticList.Name = "allStatisticList";
+            this.allStatisticList.Size = new System.Drawing.Size(233, 303);
+            this.allStatisticList.TabIndex = 0;
+            this.allStatisticList.DoubleClick += new System.EventHandler(this.allStatisticList_DoubleClick);
             // 
             // MainFrom
             // 
@@ -543,6 +579,9 @@
         private System.Windows.Forms.ListBox selectedStatisticList;
         private System.Windows.Forms.Label maxDepthLabel;
         private System.Windows.Forms.NumericUpDown numberOfMaxDeepLevel;
+        private System.Windows.Forms.Button calcDeepLevelsButton;
+        private System.Windows.Forms.Label deepLevelInfoLabel;
+        private System.Windows.Forms.ListBox deepLevelInfo;
     }
 }
 
