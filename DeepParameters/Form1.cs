@@ -1,5 +1,6 @@
 ﻿using DeepParameters.Work_WIth_Files;
 using DeepParameters.Work_WIth_Files.Interfaces;
+using ExcelDataReader.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -94,7 +95,10 @@ namespace DeepParameters {
         /// Function for clear controls start with step3
         /// </summary>
         private void ClearControlsStep3() {
-
+            numberOfMaxDeepLevel.Value = 1;
+            deepLevelInfo.Items.Clear();
+            selectedStatisticList.Items.Clear();
+            allStatisticList.Items.Clear();
         }
 
         /// <summary>
@@ -627,6 +631,44 @@ namespace DeepParameters {
 
                     progressBarReliability.Invoke(new Action<Size>((size) => progressBarReliability.Size = size),
                         new Size(dataSignalReliability.Width, progressBarReliability.Height));
+
+
+                    // tab3
+                    selectedStatisticList.Invoke(new Action<Size>((size) => selectedStatisticList.Size = size),
+                        new Size(selectedStatisticList.Width, allTabs.Height - 113));
+
+                    selectedStatisticList.Invoke(new Action<Point>((loc) => selectedStatisticList.Location = loc),
+                        new Point(selectedStatisticList.Location.X + widthDiff, selectedStatisticList.Location.Y));
+
+                    selectStatisticLabel.Invoke(new Action<Point>((loc) => selectStatisticLabel.Location = loc),
+                        new Point(selectStatisticLabel.Location.X + widthDiff, selectStatisticLabel.Location.Y));
+
+                    allStatisticList.Invoke(new Action<Size>((size) => allStatisticList.Size = size),
+                        new Size(allStatisticList.Width, allTabs.Height - 113));
+
+                    allStatisticList.Invoke(new Action<Point>((loc) => allStatisticList.Location = loc),
+                        new Point(allStatisticList.Location.X + widthDiff, allStatisticList.Location.Y));
+
+                    allStatisticLabel.Invoke(new Action<Point>((loc) => allStatisticLabel.Location = loc),
+                        new Point(allStatisticLabel.Location.X + widthDiff, allStatisticLabel.Location.Y));
+
+                    toSelectList.Invoke(new Action<Point>((loc) => toSelectList.Location = loc),
+                        new Point(toSelectList.Location.X + widthDiff, toSelectList.Location.Y));
+
+                    toAllList.Invoke(new Action<Point>((loc) => toAllList.Location = loc),
+                        new Point(toAllList.Location.X + widthDiff, toAllList.Location.Y));
+
+                    allToAllList.Invoke(new Action<Point>((loc) => allToAllList.Location = loc),
+                        new Point(allToAllList.Location.X + widthDiff, allToAllList.Location.Y));
+
+                    allToSelectList.Invoke(new Action<Point>((loc) => allToSelectList.Location = loc),
+                        new Point(allToSelectList.Location.X + widthDiff, allToSelectList.Location.Y));
+
+                    calcDeepLevelsButton.Invoke(new Action<Point>((loc) => calcDeepLevelsButton.Location = loc),
+                        new Point(calcDeepLevelsButton.Location.X, calcDeepLevelsButton.Location.Y + heightDiff));
+
+                    deepLevelInfo.Invoke(new Action<Size>((size) => deepLevelInfo.Size = size),
+                        new Size(deepLevelInfo.Width, calcDeepLevelsButton.Location.Y - deepLevelInfo.Location.Y - 22));
                 } 
             }
         }
