@@ -1,5 +1,6 @@
 ﻿using DeepParameters.Work_WIth_Files;
 using DeepParameters.Work_WIth_Files.Interfaces;
+using ExcelDataReader.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,14 +14,17 @@ using System.Windows.Forms;
 
 namespace DeepParameters {
     public partial class MainFrom : Form {
+        private const double MIN_NUMBER_VALUES_FOR_DEEP_LEVEL = 20;
+
         private IFileService fileService;
         private IDialogService dialogService = new DefaultDialogService();
 
         private List<double> AccidentValues { get; set; } = new List<double>();
         private string AccidentHeader { get; set; }
+        private List<double> ReliabilityInterval { get; set; } = new List<double>();
 
-        BackgroundWorker resizeWorker = new BackgroundWorker();
-        bool isResizeNeeded = false;
+        private BackgroundWorker resizeWorker = new BackgroundWorker();
+        private bool isResizeNeeded = false;
 
         public MainFrom() {
             InitializeComponent();
@@ -91,7 +95,10 @@ namespace DeepParameters {
         /// Function for clear controls start with step3
         /// </summary>
         private void ClearControlsStep3() {
-
+            numberOfMaxDeepLevel.Value = 1;
+            deepLevelInfo.Items.Clear();
+            selectedStatisticList.Items.Clear();
+            allStatisticList.Items.Clear();
         }
 
         /// <summary>
@@ -238,7 +245,7 @@ namespace DeepParameters {
 
             // Fill AccidentValues list from dataGridView
             for(int row = 0; row < accidentsData.Rows.Count; row++) {
-                if (accidentsData[selectedAccidentIndex, row].Value != "") {
+                if (accidentsData[selectedAccidentIndex, row].Value.ToString() != "") {
                     AccidentValues.Add(Convert.ToDouble(accidentsData[selectedAccidentIndex, row].Value));
                 }
             }
@@ -256,10 +263,9 @@ namespace DeepParameters {
         }
 
         private void buttonCalcReliabilityInterval_Click(object sender, EventArgs e) {
-            List<double> reliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
+            ReliabilityInterval.Clear();
+            ReliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues, 
                 Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
-
-            int currReliab = 0;
 
             // Clear data grid view
             ClearDataGV(dataSignalReliability);
@@ -267,7 +273,16 @@ namespace DeepParameters {
             RunBackgrounWorkerGetReliabilityForSignal();
 
             ClearControlsStep3();
-            // Установка значений для следующего шага
+            
+            // Set values for third step
+            AddStatisticsToList();
+
+            numberOfMaxDeepLevel.Maximum = Convert.ToDecimal(Math.Truncate(Math.Log
+                (Convert.ToDouble(indexOfMaxValue.Text), MIN_NUMBER_VALUES_FOR_DEEP_LEVEL)));
+
+            deepLevelInfo.Items.Add(GetNewRowOfDeepLevel(1));
+
+            researchParametersTab.Enabled = true;
         }
 
         /// <summary>
@@ -319,7 +334,7 @@ namespace DeepParameters {
 
                 // Add vibration value with reliability to data grid view
                 dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
-                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() });
+                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() + "%" });
             }
 
             // Hide progress bar
@@ -330,6 +345,192 @@ namespace DeepParameters {
                 new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
 
             bgWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Add all statistics to list
+        /// </summary>
+        private void AddStatisticsToList() {
+            foreach (string key in Statistics.Functions.Keys) {
+                allStatisticList.Items.Add(key);
+            }
+        }
+
+        private void toSelectList_Click(object sender, EventArgs e) {
+            AddItemToSelectedList();
+        }
+
+        private void allStatisticList_DoubleClick(object sender, EventArgs e) {
+            AddItemToSelectedList();
+        }
+
+        private void toAllList_Click(object sender, EventArgs e) {
+            AddItemToAllList();
+        }
+
+        private void selectedStatisticList_DoubleClick(object sender, EventArgs e) {
+            AddItemToAllList();
+        }
+
+        /// <summary>
+        /// Move selected item from all list to selected list
+        /// </summary>
+        private void AddItemToSelectedList() {
+            if (allStatisticList.SelectedItems.Count == 1) {
+                int selectedIndex = allStatisticList.SelectedIndex;
+                selectedStatisticList.Items.Add(allStatisticList.SelectedItem);
+                allStatisticList.Items.Remove(allStatisticList.SelectedItem);
+                if (allStatisticList.Items.Count > 0) {
+                    if (selectedIndex < allStatisticList.Items.Count) {
+                        allStatisticList.SelectedIndex = selectedIndex;
+                    }
+                    else {
+                        allStatisticList.SelectedIndex = selectedIndex - 1;
+                    }
+                }
+                CheckRulesForAcceptParamters();
+            }
+        }
+
+        /// <summary>
+        /// Move selected item from selected list to all list
+        /// </summary>
+        private void AddItemToAllList() {
+            if (selectedStatisticList.SelectedItems.Count == 1) {
+                int selectedIndex = selectedStatisticList.SelectedIndex;
+                allStatisticList.Items.Add(selectedStatisticList.SelectedItem);
+                selectedStatisticList.Items.Remove(selectedStatisticList.SelectedItem);
+                if (selectedStatisticList.Items.Count > 0) {
+                    if (selectedIndex < selectedStatisticList.Items.Count) {
+                        selectedStatisticList.SelectedIndex = selectedIndex;
+                    }
+                    else {
+                        selectedStatisticList.SelectedIndex = selectedIndex - 1;
+                    }
+                }
+                CheckRulesForAcceptParamters();
+            }
+        }
+
+        private void allToSelectList_Click(object sender, EventArgs e) {
+            if (allStatisticList.Items.Count > 0) {
+                selectedStatisticList.Items.AddRange(allStatisticList.Items);
+                allStatisticList.Items.Clear();
+                CheckRulesForAcceptParamters();
+            }
+        }
+
+        private void allToAllList_Click(object sender, EventArgs e) {
+            if (selectedStatisticList.Items.Count > 0) {
+                allStatisticList.Items.AddRange(selectedStatisticList.Items);
+                selectedStatisticList.Items.Clear();
+                CheckRulesForAcceptParamters();
+            }
+        }
+
+        /// <summary>
+        /// Checking rules for enable accept button
+        /// </summary>
+        private void CheckRulesForAcceptParamters() {
+            if (selectedStatisticList.Items.Count > 0) {
+                calcDeepLevelsButton.Enabled = true;
+            }
+            else {
+                calcDeepLevelsButton.Enabled = false;
+            }
+        }
+
+        private void numberOfMaxDeepLevel_ValueChanged(object sender, EventArgs e) {
+            // Add new deep levels to list
+            if (numberOfMaxDeepLevel.Value > deepLevelInfo.Items.Count) {
+                int numberOfNewLevels = (int)numberOfMaxDeepLevel.Value - deepLevelInfo.Items.Count;
+                int lastLevelInlist = deepLevelInfo.Items.Count;
+
+                for (int i = 1; i <= numberOfNewLevels; i++) {
+                    deepLevelInfo.Items.Add(GetNewRowOfDeepLevel(lastLevelInlist + i));
+                    int requiredNumberOfObser = CalcRequireNumberOfObservations();
+                    if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
+                        deepLevelInfo.Items.RemoveAt(deepLevelInfo.Items.Count - 1);
+                        ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+                        numberOfMaxDeepLevel.Value = numberOfMaxDeepLevel.Value + i - 2;
+                        break;
+                    }
+                }
+            }
+            // Remove deep levels from list
+            else if (numberOfMaxDeepLevel.Value < deepLevelInfo.Items.Count) {
+                int numberOfLevelToRemove = deepLevelInfo.Items.Count - (int)numberOfMaxDeepLevel.Value;
+
+                for (int i = 0; i < numberOfLevelToRemove; i++) {
+                    deepLevelInfo.Items.RemoveAt(deepLevelInfo.Items.Count - 1);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Get row with infromation about deeo level
+        /// </summary>
+        /// <param name="level">Number of deep level</param>
+        /// <param name="numberOfInterval">Number of values for calc of statistics</param>
+        /// <returns>Row with information aboout deep level</returns>
+        private string GetNewRowOfDeepLevel(int level, int numberOfInterval = (int)MIN_NUMBER_VALUES_FOR_DEEP_LEVEL) {
+            return $"Уровень {level}: {numberOfInterval} наблюдений";
+        }
+
+        /// <summary>
+        /// Show form for changing number of values for deep parameters
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deepLevelInfo_MouseDoubleClick(object sender, MouseEventArgs e) {
+            int oldNumValues = Convert.ToInt32(GetNumberOfObservationsFromLevel(deepLevelInfo.SelectedItem.ToString()));
+            int selectIndex = deepLevelInfo.SelectedIndex;
+            ChangeLevelValueForm formChangeValue = new ChangeLevelValueForm(selectIndex + 1, oldNumValues);
+            formChangeValue.ShowDialog();
+
+            deepLevelInfo.Items.RemoveAt(selectIndex);
+            deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, formChangeValue.NumberOfValuesForLevel));
+
+            // if number of require observations more than we have, then return the previous value
+            int requiredNumberOfObser = CalcRequireNumberOfObservations();
+            if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
+                deepLevelInfo.Items.RemoveAt(selectIndex);
+                deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, oldNumValues));
+                ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+            }
+        }
+
+        /// <summary>
+        /// Show message that we have to much require number of observations
+        /// </summary>
+        /// <param name="maxObser">Max number of available observations</param>
+        /// <param name="requiredNumberOfObser">Number of requiredNumberOfObser</param>
+        private void ShowTooMuchIntervalInLevel(int maxObser, int requiredNumberOfObser) {
+            MessageBox.Show("При заданном значении интервала невозможно построить необходимый глубинный уровень\n" +
+                    $"Общее количество наблюдений: {maxObser}\n" +
+                    $"Необходимое количество наблюдений: {requiredNumberOfObser}");
+        }
+
+        /// <summary>
+        /// Calculating the required number of observations for find all statistics
+        /// </summary>
+        /// <returns></returns>
+        private int CalcRequireNumberOfObservations() {
+            int result = 1;
+            foreach (var row in deepLevelInfo.Items) {
+                result *= GetNumberOfObservationsFromLevel(row.ToString());
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get number of observations from one row from list of levels
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private int GetNumberOfObservationsFromLevel(string row) {
+            return Convert.ToInt32(row.Split()[2]);
         }
 
         /// <summary>
@@ -344,6 +545,9 @@ namespace DeepParameters {
                     break;
                 case 1:
                     helpAllSteps.ToolTipText = StepsInfo.Step2;
+                    break;
+                case 2:
+                    helpAllSteps.ToolTipText = StepsInfo.Step3;
                     break;
             }
         }
@@ -368,6 +572,19 @@ namespace DeepParameters {
 
         private void MainFrom_FormClosing(object sender, FormClosingEventArgs e) {
             resizeWorker.CancelAsync();
+        }
+
+        private void ValidateKeyPressedOnlyNums(object sender, KeyPressEventArgs e) {
+            e.Handled = CheckNumericIntValue(e);
+        }
+
+        /// <summary>
+        /// Check if predded numeric of backspace
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        private bool CheckNumericIntValue(KeyPressEventArgs e) {
+            return (e.KeyChar < 48 || e.KeyChar > 57) && e.KeyChar != 8;
         }
 
         /// <summary>
@@ -414,10 +631,46 @@ namespace DeepParameters {
 
                     progressBarReliability.Invoke(new Action<Size>((size) => progressBarReliability.Size = size),
                         new Size(dataSignalReliability.Width, progressBarReliability.Height));
+
+
+                    // tab3
+                    selectedStatisticList.Invoke(new Action<Size>((size) => selectedStatisticList.Size = size),
+                        new Size(selectedStatisticList.Width, allTabs.Height - 113));
+
+                    selectedStatisticList.Invoke(new Action<Point>((loc) => selectedStatisticList.Location = loc),
+                        new Point(selectedStatisticList.Location.X + widthDiff, selectedStatisticList.Location.Y));
+
+                    selectStatisticLabel.Invoke(new Action<Point>((loc) => selectStatisticLabel.Location = loc),
+                        new Point(selectStatisticLabel.Location.X + widthDiff, selectStatisticLabel.Location.Y));
+
+                    allStatisticList.Invoke(new Action<Size>((size) => allStatisticList.Size = size),
+                        new Size(allStatisticList.Width, allTabs.Height - 113));
+
+                    allStatisticList.Invoke(new Action<Point>((loc) => allStatisticList.Location = loc),
+                        new Point(allStatisticList.Location.X + widthDiff, allStatisticList.Location.Y));
+
+                    allStatisticLabel.Invoke(new Action<Point>((loc) => allStatisticLabel.Location = loc),
+                        new Point(allStatisticLabel.Location.X + widthDiff, allStatisticLabel.Location.Y));
+
+                    toSelectList.Invoke(new Action<Point>((loc) => toSelectList.Location = loc),
+                        new Point(toSelectList.Location.X + widthDiff, toSelectList.Location.Y));
+
+                    toAllList.Invoke(new Action<Point>((loc) => toAllList.Location = loc),
+                        new Point(toAllList.Location.X + widthDiff, toAllList.Location.Y));
+
+                    allToAllList.Invoke(new Action<Point>((loc) => allToAllList.Location = loc),
+                        new Point(allToAllList.Location.X + widthDiff, allToAllList.Location.Y));
+
+                    allToSelectList.Invoke(new Action<Point>((loc) => allToSelectList.Location = loc),
+                        new Point(allToSelectList.Location.X + widthDiff, allToSelectList.Location.Y));
+
+                    calcDeepLevelsButton.Invoke(new Action<Point>((loc) => calcDeepLevelsButton.Location = loc),
+                        new Point(calcDeepLevelsButton.Location.X, calcDeepLevelsButton.Location.Y + heightDiff));
+
+                    deepLevelInfo.Invoke(new Action<Size>((size) => deepLevelInfo.Size = size),
+                        new Size(deepLevelInfo.Width, calcDeepLevelsButton.Location.Y - deepLevelInfo.Location.Y - 22));
                 } 
             }
         }
-
-        
     }
 }

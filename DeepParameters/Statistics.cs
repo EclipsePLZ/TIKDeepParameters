@@ -62,5 +62,204 @@ namespace DeepParameters {
             double avg = values.Average();
             return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
         }
+
+        public static Dictionary<string, Func<List<double>, double>> Functions { get; } = 
+            new Dictionary<string, Func<List<double>, double>>() {
+                { "Начальный момент 1-го порядка",  FirstOrderStartMoment},
+                { "Начальный момент 2-го порядка",  SecondOrderStartMoment},
+                { "Начальный момент 3-го порядка",  ThirdOrderStartMoment},
+                { "Начальный момент 4-го порядка",  FourthOrderStartMoment},
+                { "Центральный момент 1-го порядка",  FirstOrderCentralMoment},
+                { "Центральный момент 2-го порядка",  SecondOrderCentralMoment},
+                { "Центральный момент 3-го порядка",  ThirdOrderCentralMoment},
+                { "Центральный момент 4-го порядка",  FourthOrderCentralMoment},
+                { "Минимум", Min },
+                { "Максимум", Max },
+                { "Коэффициент асимметрии", AsymmetryCoefficient },
+                { "Коэффициент эксцесса", ExcessCoefficient },
+                { "Медиана", Median },
+                { "Коэффициент вариации", VariationCoefficient },
+                { "Среднее на интервале (0, 1)", AverageOnInterval_0_1 },
+                { "Стандартное отклонение на интервале (0, 1)", StandardDeviationOnInterval_0_1 },
+                { "Коэффициент вариации на интервале (0, 1)", VariationCoefficientOnInterval_0_1 },
+                { "Стандартная ошибка на интервале (0, 1)", StandardErrorOnInterval_0_1 }
+            };
+
+        /// <summary>
+        /// Get first-order start moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of first-order start moment</returns>
+        public static double FirstOrderStartMoment(IEnumerable<double> values) {
+            return values.Average();
+        }
+
+        /// <summary>
+        /// Get second-order start moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of second-order start moment</returns>
+        public static double SecondOrderStartMoment(IEnumerable<double> values) {
+            return values.Average(v => Math.Pow(v, 2));
+        }
+
+        /// <summary>
+        /// Get third-order start moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of third-order start moment</returns>
+        public static double ThirdOrderStartMoment(IEnumerable<double> values) {
+            return values.Average(v => Math.Pow(v, 3));
+        }
+
+        /// <summary>
+        /// Get fourth-order start moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of fourth-order start moment</returns>
+        public static double FourthOrderStartMoment(IEnumerable<double> values) {
+            return values.Average(v => Math.Pow(v, 4));
+        }
+
+        /// <summary>
+        /// Get first-order central moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of first-order central moment</returns>
+        public static double FirstOrderCentralMoment(IEnumerable<double> values) {
+            double avg = values.Average();
+            return values.Average(v => (v - avg));
+        }
+
+        /// <summary>
+        /// Get second-order central moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of second-order central moment</returns>
+        public static double SecondOrderCentralMoment(IEnumerable<double> values) {
+            double avg = values.Average();
+            return values.Average(v => Math.Pow((v - avg), 2));
+        }
+
+        /// <summary>
+        /// Get third-order central moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of third-order central moment</returns>
+        public static double ThirdOrderCentralMoment(IEnumerable<double> values) {
+            double avg = values.Average();
+            return values.Average(v => Math.Pow((v - avg), 3));
+        }
+
+        /// <summary>
+        /// Get fourth-order central moment
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Value of fourth-order central moment</returns>
+        public static double FourthOrderCentralMoment(IEnumerable<double> values) {
+            double avg = values.Average();
+            return values.Average(v => Math.Pow((v - avg), 4));
+        }
+
+        /// <summary>
+        /// Get min value
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Min value</returns>
+        public static double Min(IEnumerable<double> values) {
+            return values.Min();
+        }
+
+        /// <summary>
+        /// Get max value
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Max value</returns>
+        public static double Max(IEnumerable<double> values) {
+            return values.Max();
+        }
+
+        /// <summary>
+        /// Get asymmetry coefficient of values
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Asymmetry coefficient</returns>
+        public static double AsymmetryCoefficient(IEnumerable<double> values) { 
+            return (ThirdOrderCentralMoment(values) / Math.Pow(StandardDeviation(values), 3));
+        }
+
+        /// <summary>
+        /// Get excess coefficient of values
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Excess coefficient</returns>
+        public static double ExcessCoefficient(IEnumerable<double> values) {
+            return ((FourthOrderCentralMoment(values) / Math.Pow(StandardDeviation(values), 4)) - 3);
+        }
+
+        /// <summary>
+        /// Get median value of list
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Median</returns>
+        public static double Median(IEnumerable<double> values) {
+            if (values.Count() == 1) {
+                return values.First();
+            }
+
+            List<double>sortedValues = values.OrderBy(s => s).ToList();
+            return sortedValues.Count % 2 != 0 ? sortedValues[(sortedValues.Count - 1) / 2] : 
+                (sortedValues[(sortedValues.Count / 2)] + sortedValues[(sortedValues.Count / 2) - 1]) / 2;
+        }
+
+        /// <summary>
+        /// Get variation coefficient of values
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Variation coefficient</returns>
+        public static double VariationCoefficient(IEnumerable<double> values) {
+            return StandardDeviation(values) / values.Average();
+        }
+
+        /// <summary>
+        /// Get average value on interval (0, 1)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Average value on (0, 1)</returns>
+        public static double AverageOnInterval_0_1(IEnumerable<double> values) {
+            double min = values.Min();
+            double maxMinDiff = values.Max() - min;
+            return values.Average(v => (v - min) / maxMinDiff);
+        }
+
+        /// <summary>
+        /// Get standard deviation on interval (0, 1)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Standard deviation on (0, 1)</returns>
+        public static double StandardDeviationOnInterval_0_1(IEnumerable<double> values) {
+            double min = values.Min();
+            double maxMinDiff = values.Max() - min;
+            double avg = AverageOnInterval_0_1(values);
+            return Math.Sqrt(values.Average(v => Math.Pow((((v - min) / maxMinDiff) - avg), 2)));
+        }
+
+        /// <summary>
+        /// Get variation coefficient on interval (0, 1)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Variation coefficient on (0, 1)</returns>
+        public static double VariationCoefficientOnInterval_0_1(IEnumerable<double> values) {
+            return StandardDeviationOnInterval_0_1(values) / AverageOnInterval_0_1(values);
+        }
+
+        /// <summary>
+        /// Get standard error on interval (0, 1)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Standard error on (0, 1)</returns>
+        public static double StandardErrorOnInterval_0_1(IEnumerable<double> values) {
+            return StandardDeviationOnInterval_0_1(values) / Math.Sqrt(values.Count());
+        }
     }
 }
