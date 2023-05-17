@@ -85,6 +85,19 @@ namespace DeepParameters {
                 { "Стандартная ошибка на интервале (0, 1)", StandardErrorOnInterval_0_1 }
             };
 
+        //private static Dictionary<string, string> shortVersions = new Dictionary<string, string>() {
+        //    { "Начальный момент 1-го порядка" }
+        //};
+
+        ///// <summary>
+        ///// Return short version of statistical parameter name
+        ///// </summary>
+        ///// <param name="stat"></param>
+        ///// <returns></returns>
+        //public static string ToShortVersionOfStatistic(string stat) {
+            
+        //}
+
         /// <summary>
         /// Get first-order start moment
         /// </summary>

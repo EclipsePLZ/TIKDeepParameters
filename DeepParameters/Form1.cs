@@ -23,6 +23,8 @@ namespace DeepParameters {
         private string AccidentHeader { get; set; }
         private List<double> ReliabilityInterval { get; set; } = new List<double>();
 
+        private List<List<Dictionary<string, double>>> correlCoeffs = new List<List<Dictionary<string, double>>>();
+
         private BackgroundWorker resizeWorker = new BackgroundWorker();
         private bool isResizeNeeded = false;
 
@@ -99,6 +101,17 @@ namespace DeepParameters {
             deepLevelInfo.Items.Clear();
             selectedStatisticList.Items.Clear();
             allStatisticList.Items.Clear();
+            ClearControlsStep4();
+        }
+
+        /// <summary>
+        /// Function for clear controls start with step4
+        /// </summary>
+        private void ClearControlsStep4() {
+            ClearDataGV(resultCorrelationCoefficients);
+            thresholdCorrCoeff.Value = 0;
+            findCorrelCoeffsButton.Enabled = false;
+            returnCoeffs.Enabled = false;
         }
 
         /// <summary>
@@ -292,15 +305,15 @@ namespace DeepParameters {
             SetDataGVColumnHeaders(new List<string>() { AccidentHeader, "Надежность" }, dataSignalReliability, false);
 
             // Run background worker
-            BackgroundWorker bgWoker = new BackgroundWorker();
-            bgWoker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, progressBarReliability));
-            bgWoker.DoWork += new DoWorkEventHandler((sender, e) => FindReliabilityForSignal(sender, e, bgWoker));
-            bgWoker.WorkerReportsProgress = true;
-            bgWoker.WorkerSupportsCancellation = true;
+            BackgroundWorker bgWorker = new BackgroundWorker();
+            bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, progressBarReliability));
+            bgWorker.DoWork += new DoWorkEventHandler((sender, e) => FindReliabilityForSignal(sender, e, bgWorker));
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.WorkerSupportsCancellation = true;
             dataSignalReliability.Size = new Size(dataSignalReliability.Width, dataSignalReliability.Height - 25);
             progressBarReliability.Value = 0;
             progressBarReliability.Visible = true;
-            bgWoker.RunWorkerAsync();
+            bgWorker.RunWorkerAsync();
         }
 
         private void FindReliabilityForSignal(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
@@ -531,6 +544,54 @@ namespace DeepParameters {
         /// <returns></returns>
         private int GetNumberOfObservationsFromLevel(string row) {
             return Convert.ToInt32(row.Split()[2]);
+        }
+
+        private void calcDeepLevelsButton_Click(object sender, EventArgs e) {
+            RunBackgroundWorkerGetCorrCoeffs();
+
+            // Set values for fourth step
+            ClearControlsStep4();
+            thresholdCorrCoeff.Value = 0;
+            allTabs.SelectTab(corrResultTab);
+        }
+
+        /// <summary>
+        /// Find correlation coefficients for each deep level for each statistics in background
+        /// </summary>
+        private void RunBackgroundWorkerGetCorrCoeffs() {
+            SetDataGVColumnHeaders(new List<string>() { "Статистика", "Модуль коэффициента корреляции" },
+                resultCorrelationCoefficients, true);
+
+            // Run background worker
+            BackgroundWorker bgWorker = new BackgroundWorker();
+            bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, getCorrelProgressBar));
+            bgWorker.DoWork += new DoWorkEventHandler((sender, e) => GetCorrelationCoefficients(sender, e, bgWorker));
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.WorkerSupportsCancellation = true;
+            resultCorrelationCoefficients.Size = new Size(resultCorrelationCoefficients.Width, resultCorrelationCoefficients.Height - 25);
+            getCorrelProgressBar.Value = 0;
+            getCorrelProgressBar.Visible = true;
+            bgWorker.RunWorkerAsync();
+        }
+
+        private void GetCorrelationCoefficients(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
+            correlCoeffs.Clear();
+            List<int> intervalsForLevel = new List<int>();
+            int sizeOfInterval = CalcRequireNumberOfObservations();
+            int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text);
+            int numberOfIntervals = indexWithMaxSignal / sizeOfInterval;
+
+            for (int intervalNumber = 0; intervalNumber < (indexWithMaxSignal / sizeOfInterval); intervalNumber++) {
+
+            }
+
+                for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
+                    intervalsForLevel.Add(GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString()));
+                    // Вычисление предыдущих уровней
+                    for (int j = 0; j < i; j++) {
+
+                    }
+                }
         }
 
         /// <summary>
