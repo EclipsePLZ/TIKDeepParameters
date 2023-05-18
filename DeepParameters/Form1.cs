@@ -115,12 +115,13 @@ namespace DeepParameters {
         }
 
         /// <summary>
-        /// Clear headers from dataGridView
+        /// Clear headers and data from dataGridView
         /// </summary>
         /// <param name="data">dataGridView</param>
-        private void ClearDataGV(DataGridView data) {
+        /// <param name="columnHeadersVisible">Show headers of columns</param>
+        private void ClearDataGV(DataGridView data, bool columnHeadersVisible=false) {
             data.Rows.Clear();
-            data.ColumnHeadersVisible = false;
+            data.ColumnHeadersVisible = columnHeadersVisible;
             data.Refresh();
         }
 
@@ -583,13 +584,8 @@ namespace DeepParameters {
 
             // Run background worker
             BackgroundWorker bgWorker = new BackgroundWorker();
-            //bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, getCorrelProgressBar));
             bgWorker.DoWork += new DoWorkEventHandler((sender, e) => GetCorrelationCoefficients(sender, e, bgWorker));
-            //bgWorker.WorkerReportsProgress = true;
             bgWorker.WorkerSupportsCancellation = true;
-            //resultCorrelationCoefficients.Size = new Size(resultCorrelationCoefficients.Width, resultCorrelationCoefficients.Height - 25);
-            //getCorrelProgressBar.Value = 0;
-            //getCorrelProgressBar.Visible = true;
             bgWorker.RunWorkerAsync();
         }
 
@@ -611,11 +607,8 @@ namespace DeepParameters {
             // Dictionary for values of each statistic for calc correl
             Dictionary<string, List<double>> statisticValuesForCorrel = new Dictionary<string, List<double>>();
 
-            // Find max values in each interval
-            List<double> maxValuesOfEachInterval = GetMaxValuesOfEachInterval(zeroLevel);
-
             // Get reliability list for calc correlation
-            List<double> reliabList = GetReliabList(maxValuesOfEachInterval);
+            List<double> reliabList = GetReliabilityList(zeroLevel);
 
             // Find all deep statistics
             for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
@@ -625,7 +618,6 @@ namespace DeepParameters {
 
                 // Find number of require observation for current level
                 int oneStep = GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString());
-
 
                 for (int interval = 0; interval < numberOfIntervals; interval++) {
 
@@ -643,6 +635,8 @@ namespace DeepParameters {
                                 statisticValuesForCorrel[item.Key] = new List<double>();
                             }
                             nextStatistics[item.Key] = new List<double>();
+
+                            // Add function result of each step to nextStatistics
                             for (int step = 0; step < numberOfSteps; step++) {
                                 nextStatistics[item.Key].Add(item.Value(zeroLevel[interval].GetRange(step * oneStep, oneStep)));
                             }
@@ -662,6 +656,8 @@ namespace DeepParameters {
 
                                 // Find number of availavle step in previous level statistic
                                 int numberOfSteps = prevStat.Value.Count / oneStep;
+
+                                // Add function result of each step to nextStatistics
                                 for (int step = 0; step < numberOfSteps; step++) {
                                     nextStatistics[combineStatName].
                                         Add(item.Value(prevStat.Value.GetRange(step * oneStep, oneStep)));
@@ -675,12 +671,15 @@ namespace DeepParameters {
                 }
                 statisticsValues.Add(nextIntervalStatistics);
             }
+
+            // Find correlation coefficients for each statistics
             foreach (var item in statisticValuesForCorrel) {
                 double correl = Math.Abs(Statistics.PearsonCorrelationCoefficient(item.Value, reliabList));
-                resultCorrelationCoefficients.Invoke(new Action<List<string>>((row) => resultCorrelationCoefficients.Rows.Add(row.ToArray())),
-                    new List<string>() { item.Key, correl.ToString() });
                 correlCoeffs[item.Key] = correl;
             }
+
+            Action action = () => PrintCorrelationResult();
+            resultCorrelationCoefficients.Invoke(action);
             bgWorker.CancelAsync();
         }
 
@@ -719,15 +718,27 @@ namespace DeepParameters {
         /// </summary>
         /// <param name="values">List of values</param>
         /// <returns>List of realiabilities</returns>
-        private List<double> GetReliabList(List<double> values) {
+        private List<double> GetReliabilityList(List<List<double>> values) {
+            // Find max values in each interval
+            List<double> maxValuesOfEachInterval = GetMaxValuesOfEachInterval(values);
             List<double> reliabList = new List<double>();
             int prevReliab = 100;
             
-            foreach (double value in values) {
+            foreach (double value in maxValuesOfEachInterval) {
                 prevReliab = GetReliabCoeff(prevReliab, value);
                 reliabList.Add(prevReliab);
             }
             return reliabList;
+        }
+
+        /// <summary>
+        /// Print correlation results in data grid view
+        /// </summary>
+        private void PrintCorrelationResult() {
+            ClearDataGV(resultCorrelationCoefficients, true);
+            foreach (var item in correlCoeffs) {
+                resultCorrelationCoefficients.Rows.Add(new string[] { item.Key, item.Value.ToString() });
+            }
         }
 
         /// <summary>
