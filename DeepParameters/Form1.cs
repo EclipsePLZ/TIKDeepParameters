@@ -23,7 +23,7 @@ namespace DeepParameters {
         private string AccidentHeader { get; set; }
         private List<double> ReliabilityInterval { get; set; } = new List<double>();
 
-        private List<List<Dictionary<string, double>>> correlCoeffs = new List<List<Dictionary<string, double>>>();
+        private Dictionary<string, double> correlCoeffs = new Dictionary<string, double>();
 
         private BackgroundWorker resizeWorker = new BackgroundWorker();
         private bool isResizeNeeded = false;
@@ -234,13 +234,18 @@ namespace DeepParameters {
         /// <param name="headers">List of column headers</param>
         /// <param name="dataGV">DataGridView</param>
         /// <param name="autoSize">AutoSize column width</param>
-        private void SetDataGVColumnHeaders(List<string> headers, DataGridView dataGV, bool autoSize) {
+        private void SetDataGVColumnHeaders(List<string> headers, DataGridView dataGV, bool autoSize, List<int> indexOfSortableColumns = null) {
             dataGV.ColumnCount = headers.Count;
             for (int i = 0; i < dataGV.Columns.Count; i++) {
                 dataGV.Columns[i].HeaderText = headers[i];
                 dataGV.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
                 if (autoSize) {
                     dataGV.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                }
+            }
+            if (indexOfSortableColumns != null) {
+                foreach (int index in indexOfSortableColumns) {
+                    dataGV.Columns[index].SortMode = DataGridViewColumnSortMode.Automatic;
                 }
             }
             dataGV.ColumnHeadersVisible = true;
@@ -302,7 +307,7 @@ namespace DeepParameters {
         /// Find reliability for each value in accident in background
         /// </summary>
         private void RunBackgrounWorkerGetReliabilityForSignal() {
-            SetDataGVColumnHeaders(new List<string>() { AccidentHeader, "Надежность" }, dataSignalReliability, false);
+            SetDataGVColumnHeaders(new List<string>() { AccidentHeader, "Надежность" }, dataSignalReliability, true);
 
             // Run background worker
             BackgroundWorker bgWorker = new BackgroundWorker();
@@ -317,10 +322,6 @@ namespace DeepParameters {
         }
 
         private void FindReliabilityForSignal(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
-            List<double> reliabilityInterval = Statistics.GetReliabilityInterval(AccidentValues,
-                Convert.ToInt32(numberOfValuesForNormLevel.Value), Convert.ToDouble(numberOfStdForMaxLevel.Value));
-
-
             // Create start parameters for progress bar
             int progress = 0;
             int step = AccidentValues.Count / 100;
@@ -330,7 +331,7 @@ namespace DeepParameters {
                 oneBarInProgress = (100 / AccidentValues.Count) + 1;
             }
 
-            int currReliab = 0;
+            int prevReliab = 100;
 
             for (int i = 0; i < AccidentValues.Count; i++) {
                 // Find progress
@@ -339,15 +340,10 @@ namespace DeepParameters {
                     bgWorker.ReportProgress(progress);
                 }
 
-                // Find reliability for the current signal
-                while (currReliab < 100 && ((currReliab == 0 && AccidentValues[i] > reliabilityInterval[currReliab]) || 
-                    (currReliab > 0 && AccidentValues[i] >= reliabilityInterval[currReliab]))) {
-                    currReliab++;
-                }
-
+                prevReliab = GetReliabCoeff(prevReliab, AccidentValues[i]);
                 // Add vibration value with reliability to data grid view
                 dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
-                    new List<string>() { AccidentValues[i].ToString(), (100 - currReliab).ToString() + "%" });
+                    new List<string>() { AccidentValues[i].ToString(), (prevReliab).ToString() + "%" });
             }
 
             // Hide progress bar
@@ -358,6 +354,24 @@ namespace DeepParameters {
                 new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
 
             bgWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Get reliability coefficient for value from reliability interval
+        /// </summary>
+        /// <param name="prevReliab"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private int GetReliabCoeff(int prevReliab, double value) {
+            int currReliab = 100 - prevReliab;
+
+            if (value == ReliabilityInterval.Last()) {
+                return 0;
+            }
+            while (currReliab < 100 && value > ReliabilityInterval[currReliab]) {
+                currReliab++;
+            }
+            return 100 - currReliab;
         }
 
         /// <summary>
@@ -497,20 +511,22 @@ namespace DeepParameters {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void deepLevelInfo_MouseDoubleClick(object sender, MouseEventArgs e) {
-            int oldNumValues = Convert.ToInt32(GetNumberOfObservationsFromLevel(deepLevelInfo.SelectedItem.ToString()));
-            int selectIndex = deepLevelInfo.SelectedIndex;
-            ChangeLevelValueForm formChangeValue = new ChangeLevelValueForm(selectIndex + 1, oldNumValues);
-            formChangeValue.ShowDialog();
+            if (deepLevelInfo.SelectedItem != null) {
+                int oldNumValues = Convert.ToInt32(GetNumberOfObservationsFromLevel(deepLevelInfo.SelectedItem.ToString()));
+                int selectIndex = deepLevelInfo.SelectedIndex;
+                ChangeLevelValueForm formChangeValue = new ChangeLevelValueForm(selectIndex + 1, oldNumValues);
+                formChangeValue.ShowDialog();
 
-            deepLevelInfo.Items.RemoveAt(selectIndex);
-            deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, formChangeValue.NumberOfValuesForLevel));
-
-            // if number of require observations more than we have, then return the previous value
-            int requiredNumberOfObser = CalcRequireNumberOfObservations();
-            if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
                 deepLevelInfo.Items.RemoveAt(selectIndex);
-                deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, oldNumValues));
-                ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+                deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, formChangeValue.NumberOfValuesForLevel));
+
+                // if number of require observations more than we have, then return the previous value
+                int requiredNumberOfObser = CalcRequireNumberOfObservations();
+                if (requiredNumberOfObser > Convert.ToInt32(indexOfMaxValue.Text)) {
+                    deepLevelInfo.Items.RemoveAt(selectIndex);
+                    deepLevelInfo.Items.Insert(selectIndex, GetNewRowOfDeepLevel(formChangeValue.Level, oldNumValues));
+                    ShowTooMuchIntervalInLevel(Convert.ToInt32(indexOfMaxValue.Text), requiredNumberOfObser);
+                }
             }
         }
 
@@ -547,11 +563,14 @@ namespace DeepParameters {
         }
 
         private void calcDeepLevelsButton_Click(object sender, EventArgs e) {
+            ClearControlsStep4();
+
             RunBackgroundWorkerGetCorrCoeffs();
 
             // Set values for fourth step
-            ClearControlsStep4();
+            
             thresholdCorrCoeff.Value = 0;
+            corrResultTab.Enabled = true;
             allTabs.SelectTab(corrResultTab);
         }
 
@@ -560,38 +579,155 @@ namespace DeepParameters {
         /// </summary>
         private void RunBackgroundWorkerGetCorrCoeffs() {
             SetDataGVColumnHeaders(new List<string>() { "Статистика", "Модуль коэффициента корреляции" },
-                resultCorrelationCoefficients, true);
+                resultCorrelationCoefficients, true, new List<int>() { 1 });
 
             // Run background worker
             BackgroundWorker bgWorker = new BackgroundWorker();
-            bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, getCorrelProgressBar));
+            //bgWorker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => ProgressBarChanged(sender, e, getCorrelProgressBar));
             bgWorker.DoWork += new DoWorkEventHandler((sender, e) => GetCorrelationCoefficients(sender, e, bgWorker));
-            bgWorker.WorkerReportsProgress = true;
+            //bgWorker.WorkerReportsProgress = true;
             bgWorker.WorkerSupportsCancellation = true;
-            resultCorrelationCoefficients.Size = new Size(resultCorrelationCoefficients.Width, resultCorrelationCoefficients.Height - 25);
-            getCorrelProgressBar.Value = 0;
-            getCorrelProgressBar.Visible = true;
+            //resultCorrelationCoefficients.Size = new Size(resultCorrelationCoefficients.Width, resultCorrelationCoefficients.Height - 25);
+            //getCorrelProgressBar.Value = 0;
+            //getCorrelProgressBar.Visible = true;
             bgWorker.RunWorkerAsync();
         }
 
         private void GetCorrelationCoefficients(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
             correlCoeffs.Clear();
-            List<int> intervalsForLevel = new List<int>();
+            
+            // Find Information about intervals
             int sizeOfInterval = CalcRequireNumberOfObservations();
-            int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text);
-            int numberOfIntervals = indexWithMaxSignal / sizeOfInterval;
+            int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text) - 1;
+            int numberOfIntervals = (indexWithMaxSignal + 1) / sizeOfInterval;
 
-            for (int intervalNumber = 0; intervalNumber < (indexWithMaxSignal / sizeOfInterval); intervalNumber++) {
+            // List that contains all statistics calculating by all values
+            List<List<Dictionary<string, List<double>>>> statisticsValues = new List<List<Dictionary<string, List<double>>>>();
 
+            // List that contains intervals for first deep level
+            List<List<double>> zeroLevel = SplitVibroSignalIntoIntervals(sizeOfInterval, 
+                indexWithMaxSignal - (sizeOfInterval * numberOfIntervals), indexWithMaxSignal);
+
+            // Dictionary for values of each statistic for calc correl
+            Dictionary<string, List<double>> statisticValuesForCorrel = new Dictionary<string, List<double>>();
+
+            // Find max values in each interval
+            List<double> maxValuesOfEachInterval = GetMaxValuesOfEachInterval(zeroLevel);
+
+            // Get reliability list for calc correlation
+            List<double> reliabList = GetReliabList(maxValuesOfEachInterval);
+
+            // Find all deep statistics
+            for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
+
+                // List with all statistics for every level
+                List<Dictionary<string, List<double>>> nextIntervalStatistics = new List<Dictionary<string, List<double>>>();
+
+                // Find number of require observation for current level
+                int oneStep = GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString());
+
+
+                for (int interval = 0; interval < numberOfIntervals; interval++) {
+
+                    // List that contains statistics values for one interval for each level step
+                    Dictionary<string, List<double>> nextStatistics = new Dictionary<string, List<double>>();
+
+                    // If we explore the first level, we will use zeroLevel list
+                    if (i == 0) {
+                        // Find number of steps in each interval
+                        int numberOfSteps = (sizeOfInterval / oneStep);
+
+                        // Find values for each statistics
+                        foreach (var item in Statistics.Functions) {
+                            if (!statisticValuesForCorrel.Keys.Contains(item.Key)) {
+                                statisticValuesForCorrel[item.Key] = new List<double>();
+                            }
+                            nextStatistics[item.Key] = new List<double>();
+                            for (int step = 0; step < numberOfSteps; step++) {
+                                nextStatistics[item.Key].Add(item.Value(zeroLevel[interval].GetRange(step * oneStep, oneStep)));
+                            }
+                            statisticValuesForCorrel[item.Key].Add(nextStatistics[item.Key].Last());
+                        }
+                    }
+                    // Ohterwise we will use data on previous levels (statisticsValues)
+                    else {
+                        // Find values for each statistics for each statistics that was calculated on the previous level
+                        foreach (var prevStat in statisticsValues[i - 1][interval]) {
+                            foreach (var item in Statistics.Functions) {
+                                string combineStatName = item.Key + ", " + prevStat.Key;
+                                if (!statisticValuesForCorrel.Keys.Contains(combineStatName)) {
+                                    statisticValuesForCorrel[combineStatName] = new List<double>();
+                                }
+                                nextStatistics[combineStatName] = new List<double>();
+
+                                // Find number of availavle step in previous level statistic
+                                int numberOfSteps = prevStat.Value.Count / oneStep;
+                                for (int step = 0; step < numberOfSteps; step++) {
+                                    nextStatistics[combineStatName].
+                                        Add(item.Value(prevStat.Value.GetRange(step * oneStep, oneStep)));
+                                }
+
+                                statisticValuesForCorrel[combineStatName].Add(nextStatistics[combineStatName].Last());
+                            }
+                        }
+                    }
+                    nextIntervalStatistics.Add(nextStatistics);
+                }
+                statisticsValues.Add(nextIntervalStatistics);
+            }
+            foreach (var item in statisticValuesForCorrel) {
+                double correl = Math.Abs(Statistics.PearsonCorrelationCoefficient(item.Value, reliabList));
+                resultCorrelationCoefficients.Invoke(new Action<List<string>>((row) => resultCorrelationCoefficients.Rows.Add(row.ToArray())),
+                    new List<string>() { item.Key, correl.ToString() });
+                correlCoeffs[item.Key] = correl;
+            }
+            bgWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Split vibration signal on intervals
+        /// </summary>
+        /// <param name="numberValuesInInterval">Number of values in interval</param>
+        /// <param name="startPosition">Start position for splitting</param>
+        /// <param name="endPosition">End position for splitting</param>
+        /// <returns>Intervals of vibration signal</returns>
+        private List<List<double>> SplitVibroSignalIntoIntervals(int numberValuesInInterval, int startPosition, int endPosition) {
+            List<List<double>> splitSignal = new List<List<double>>();
+
+            for (int i = startPosition; i <= endPosition - numberValuesInInterval; i += numberValuesInInterval) {
+                splitSignal.Add(AccidentValues.GetRange(i, numberValuesInInterval));
             }
 
-                for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
-                    intervalsForLevel.Add(GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString()));
-                    // Вычисление предыдущих уровней
-                    for (int j = 0; j < i; j++) {
+            return splitSignal;
+        }
 
-                    }
-                }
+        /// <summary>
+        /// Get max values from each interval
+        /// </summary>
+        /// <param name="intervals">List of interval</param>
+        /// <returns>Max values form each interval</returns>
+        private List<double> GetMaxValuesOfEachInterval(List<List<double>> intervals) {
+            List<double> maxValues = new List<double>();
+            foreach (List<double> interval in intervals) {
+                maxValues.Add(interval.Max());
+            }
+            return maxValues;
+        }
+
+        /// <summary>
+        /// Get reliability list from values list
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>List of realiabilities</returns>
+        private List<double> GetReliabList(List<double> values) {
+            List<double> reliabList = new List<double>();
+            int prevReliab = 100;
+            
+            foreach (double value in values) {
+                prevReliab = GetReliabCoeff(prevReliab, value);
+                reliabList.Add(prevReliab);
+            }
+            return reliabList;
         }
 
         /// <summary>

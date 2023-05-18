@@ -63,6 +63,31 @@ namespace DeepParameters {
             return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
         }
 
+        /// <summary>
+        /// Get Pearson correlation coefficient
+        /// </summary>
+        /// <param name="values1">List of values</param>
+        /// <param name="values2">List of values</param>
+        /// <returns>Value of correlation coefficient</returns>
+        public static double PearsonCorrelationCoefficient(IEnumerable<double> values1, IEnumerable<double> values2) {
+            if (values1.Count() != values2.Count()) {
+                throw new ArgumentException("Values must be the same length");
+            }
+
+            // Find average values of two lists
+            double avg1 = values1.Average();
+            double avg2 = values2.Average();
+
+            // Calc sum in the numerator
+            double sum1 = values1.Zip(values2, (x1, y1) => (x1 - avg1) * (y1 - avg2)).Sum();
+
+            // Calc sums in the denominator
+            double sumSqr1 = values1.Sum(x => Math.Pow((x - avg1), 2.0));
+            double sumSqr2 = values2.Sum(y => Math.Pow((y - avg2), 2.0));
+
+            return sum1 / Math.Sqrt(sumSqr1 * sumSqr2);
+        }
+
         public static Dictionary<string, Func<List<double>, double>> Functions { get; } = 
             new Dictionary<string, Func<List<double>, double>>() {
                 { "Начальный момент 1-го порядка",  FirstOrderStartMoment},
