@@ -62,6 +62,13 @@
             this.allStatisticLabel = new System.Windows.Forms.Label();
             this.selectedStatisticList = new System.Windows.Forms.ListBox();
             this.allStatisticList = new System.Windows.Forms.ListBox();
+            this.corrResultTab = new System.Windows.Forms.TabPage();
+            this.returnCoeffs = new System.Windows.Forms.Button();
+            this.thresholdCorrCoeffLabel = new System.Windows.Forms.Label();
+            this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
+            this.filterCorrelCoeffsButton = new System.Windows.Forms.Button();
+            this.resultCorrelationCoefficients = new System.Windows.Forms.DataGridView();
+            this.printReliabToDataGV = new System.Windows.Forms.CheckBox();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -72,6 +79,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.numberOfValuesForNormLevel)).BeginInit();
             this.researchParametersTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).BeginInit();
+            this.corrResultTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.thresholdCorrCoeff)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -122,6 +132,7 @@
             this.allTabs.Controls.Add(this.loadDataTab);
             this.allTabs.Controls.Add(this.findReliabIntervalTab);
             this.allTabs.Controls.Add(this.researchParametersTab);
+            this.allTabs.Controls.Add(this.corrResultTab);
             this.allTabs.Location = new System.Drawing.Point(12, 27);
             this.allTabs.Name = "allTabs";
             this.allTabs.SelectedIndex = 0;
@@ -198,6 +209,7 @@
             // 
             // findReliabIntervalTab
             // 
+            this.findReliabIntervalTab.Controls.Add(this.printReliabToDataGV);
             this.findReliabIntervalTab.Controls.Add(this.progressBarReliability);
             this.findReliabIntervalTab.Controls.Add(this.dataSignalReliability);
             this.findReliabIntervalTab.Controls.Add(this.buttonCalcReliabilityInterval);
@@ -381,6 +393,7 @@
             this.calcDeepLevelsButton.TabIndex = 29;
             this.calcDeepLevelsButton.Text = "Подтвердить";
             this.calcDeepLevelsButton.UseVisualStyleBackColor = true;
+            this.calcDeepLevelsButton.Click += new System.EventHandler(this.calcDeepLevelsButton_Click);
             // 
             // deepLevelInfoLabel
             // 
@@ -509,6 +522,97 @@
             this.allStatisticList.TabIndex = 0;
             this.allStatisticList.DoubleClick += new System.EventHandler(this.allStatisticList_DoubleClick);
             // 
+            // corrResultTab
+            // 
+            this.corrResultTab.Controls.Add(this.returnCoeffs);
+            this.corrResultTab.Controls.Add(this.thresholdCorrCoeffLabel);
+            this.corrResultTab.Controls.Add(this.thresholdCorrCoeff);
+            this.corrResultTab.Controls.Add(this.filterCorrelCoeffsButton);
+            this.corrResultTab.Controls.Add(this.resultCorrelationCoefficients);
+            this.corrResultTab.Location = new System.Drawing.Point(4, 22);
+            this.corrResultTab.Name = "corrResultTab";
+            this.corrResultTab.Size = new System.Drawing.Size(816, 390);
+            this.corrResultTab.TabIndex = 3;
+            this.corrResultTab.Text = "Результаты";
+            this.corrResultTab.UseVisualStyleBackColor = true;
+            // 
+            // returnCoeffs
+            // 
+            this.returnCoeffs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.returnCoeffs.Location = new System.Drawing.Point(692, 184);
+            this.returnCoeffs.Name = "returnCoeffs";
+            this.returnCoeffs.Size = new System.Drawing.Size(85, 30);
+            this.returnCoeffs.TabIndex = 33;
+            this.returnCoeffs.Text = "Отменить";
+            this.returnCoeffs.UseVisualStyleBackColor = true;
+            this.returnCoeffs.Click += new System.EventHandler(this.returnCoeffs_Click);
+            // 
+            // thresholdCorrCoeffLabel
+            // 
+            this.thresholdCorrCoeffLabel.AutoSize = true;
+            this.thresholdCorrCoeffLabel.Location = new System.Drawing.Point(671, 56);
+            this.thresholdCorrCoeffLabel.Name = "thresholdCorrCoeffLabel";
+            this.thresholdCorrCoeffLabel.Size = new System.Drawing.Size(115, 26);
+            this.thresholdCorrCoeffLabel.TabIndex = 32;
+            this.thresholdCorrCoeffLabel.Text = "Пороговое значение \r\nкорреляции:";
+            // 
+            // thresholdCorrCoeff
+            // 
+            this.thresholdCorrCoeff.DecimalPlaces = 2;
+            this.thresholdCorrCoeff.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.thresholdCorrCoeff.Location = new System.Drawing.Point(674, 85);
+            this.thresholdCorrCoeff.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.thresholdCorrCoeff.Name = "thresholdCorrCoeff";
+            this.thresholdCorrCoeff.Size = new System.Drawing.Size(120, 20);
+            this.thresholdCorrCoeff.TabIndex = 31;
+            this.thresholdCorrCoeff.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // filterCorrelCoeffsButton
+            // 
+            this.filterCorrelCoeffsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.filterCorrelCoeffsButton.Location = new System.Drawing.Point(692, 130);
+            this.filterCorrelCoeffsButton.Name = "filterCorrelCoeffsButton";
+            this.filterCorrelCoeffsButton.Size = new System.Drawing.Size(85, 30);
+            this.filterCorrelCoeffsButton.TabIndex = 30;
+            this.filterCorrelCoeffsButton.Text = "Применить";
+            this.filterCorrelCoeffsButton.UseVisualStyleBackColor = true;
+            this.filterCorrelCoeffsButton.Click += new System.EventHandler(this.filterCorrelCoeffsButton_Click);
+            // 
+            // resultCorrelationCoefficients
+            // 
+            this.resultCorrelationCoefficients.AllowUserToAddRows = false;
+            this.resultCorrelationCoefficients.AllowUserToDeleteRows = false;
+            this.resultCorrelationCoefficients.AllowUserToResizeRows = false;
+            this.resultCorrelationCoefficients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultCorrelationCoefficients.Location = new System.Drawing.Point(14, 15);
+            this.resultCorrelationCoefficients.Name = "resultCorrelationCoefficients";
+            this.resultCorrelationCoefficients.ReadOnly = true;
+            this.resultCorrelationCoefficients.RowHeadersWidth = 51;
+            this.resultCorrelationCoefficients.Size = new System.Drawing.Size(633, 368);
+            this.resultCorrelationCoefficients.TabIndex = 29;
+            // 
+            // printReliabToDataGV
+            // 
+            this.printReliabToDataGV.AutoSize = true;
+            this.printReliabToDataGV.Location = new System.Drawing.Point(24, 272);
+            this.printReliabToDataGV.Name = "printReliabToDataGV";
+            this.printReliabToDataGV.Size = new System.Drawing.Size(184, 17);
+            this.printReliabToDataGV.TabIndex = 30;
+            this.printReliabToDataGV.Text = "Вывести результаты в таблицу";
+            this.printReliabToDataGV.UseVisualStyleBackColor = true;
+            // 
             // MainFrom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -537,6 +641,10 @@
             this.researchParametersTab.ResumeLayout(false);
             this.researchParametersTab.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).EndInit();
+            this.corrResultTab.ResumeLayout(false);
+            this.corrResultTab.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.thresholdCorrCoeff)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -582,6 +690,13 @@
         private System.Windows.Forms.Button calcDeepLevelsButton;
         private System.Windows.Forms.Label deepLevelInfoLabel;
         private System.Windows.Forms.ListBox deepLevelInfo;
+        private System.Windows.Forms.TabPage corrResultTab;
+        private System.Windows.Forms.Button returnCoeffs;
+        private System.Windows.Forms.Label thresholdCorrCoeffLabel;
+        private System.Windows.Forms.NumericUpDown thresholdCorrCoeff;
+        private System.Windows.Forms.Button filterCorrelCoeffsButton;
+        private System.Windows.Forms.DataGridView resultCorrelationCoefficients;
+        private System.Windows.Forms.CheckBox printReliabToDataGV;
     }
 }
 
