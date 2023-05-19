@@ -68,6 +68,7 @@
             this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
             this.filterCorrelCoeffsButton = new System.Windows.Forms.Button();
             this.resultCorrelationCoefficients = new System.Windows.Forms.DataGridView();
+            this.printReliabToDataGV = new System.Windows.Forms.CheckBox();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -208,6 +209,7 @@
             // 
             // findReliabIntervalTab
             // 
+            this.findReliabIntervalTab.Controls.Add(this.printReliabToDataGV);
             this.findReliabIntervalTab.Controls.Add(this.progressBarReliability);
             this.findReliabIntervalTab.Controls.Add(this.dataSignalReliability);
             this.findReliabIntervalTab.Controls.Add(this.buttonCalcReliabilityInterval);
@@ -601,6 +603,16 @@
             this.resultCorrelationCoefficients.Size = new System.Drawing.Size(633, 368);
             this.resultCorrelationCoefficients.TabIndex = 29;
             // 
+            // printReliabToDataGV
+            // 
+            this.printReliabToDataGV.AutoSize = true;
+            this.printReliabToDataGV.Location = new System.Drawing.Point(24, 272);
+            this.printReliabToDataGV.Name = "printReliabToDataGV";
+            this.printReliabToDataGV.Size = new System.Drawing.Size(184, 17);
+            this.printReliabToDataGV.TabIndex = 30;
+            this.printReliabToDataGV.Text = "Вывести результаты в таблицу";
+            this.printReliabToDataGV.UseVisualStyleBackColor = true;
+            // 
             // MainFrom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -684,6 +696,7 @@
         private System.Windows.Forms.NumericUpDown thresholdCorrCoeff;
         private System.Windows.Forms.Button filterCorrelCoeffsButton;
         private System.Windows.Forms.DataGridView resultCorrelationCoefficients;
+        private System.Windows.Forms.CheckBox printReliabToDataGV;
     }
 }
 

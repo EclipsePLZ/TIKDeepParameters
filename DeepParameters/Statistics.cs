@@ -107,21 +107,10 @@ namespace DeepParameters {
                 { "Среднее на интервале (0, 1)", AverageOnInterval_0_1 },
                 { "Стандартное отклонение на интервале (0, 1)", StandardDeviationOnInterval_0_1 },
                 { "Коэффициент вариации на интервале (0, 1)", VariationCoefficientOnInterval_0_1 },
-                { "Стандартная ошибка на интервале (0, 1)", StandardErrorOnInterval_0_1 }
+                { "Стандартная ошибка на интервале (0, 1)", StandardErrorOnInterval_0_1 },
+                { "Waveform length (WL)", WavefromLength },
+                { "Kurtosis (KURT)", Kurtosis }
             };
-
-        //private static Dictionary<string, string> shortVersions = new Dictionary<string, string>() {
-        //    { "Начальный момент 1-го порядка" }
-        //};
-
-        ///// <summary>
-        ///// Return short version of statistical parameter name
-        ///// </summary>
-        ///// <param name="stat"></param>
-        ///// <returns></returns>
-        //public static string ToShortVersionOfStatistic(string stat) {
-            
-        //}
 
         /// <summary>
         /// Get first-order start moment
@@ -298,6 +287,30 @@ namespace DeepParameters {
         /// <returns>Standard error on (0, 1)</returns>
         public static double StandardErrorOnInterval_0_1(IEnumerable<double> values) {
             return StandardDeviationOnInterval_0_1(values) / Math.Sqrt(values.Count());
+        }
+
+        /// <summary>
+        /// Get waveform length (WL)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Waveform length (WL)</returns>
+        public static double WavefromLength(IEnumerable<double> values) {
+            double result = 0;
+            
+            for (int i = 1; i < values.Count(); i++) {
+                result += Math.Abs(values.ElementAt(i) - values.ElementAt(i - 1));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get kurtosis (KURT)
+        /// </summary>
+        /// <param name="values">List of values</param>
+        /// <returns>Kurtosis (KURT)</returns>
+        public static double Kurtosis(IEnumerable<double> values) { 
+            return (FourthOrderCentralMoment(values) / Math.Pow(SecondOrderCentralMoment(values), 2));
         }
     }
 }

@@ -90,6 +90,7 @@ namespace DeepParameters {
             numberOfValuesInAcc.Clear();
             indexOfMaxValue.Clear();
             ClearDataGV(dataSignalReliability);
+            printReliabToDataGV.Checked = false;
             ClearControlsStep3();
         }
 
@@ -97,6 +98,7 @@ namespace DeepParameters {
         /// Function for clear controls start with step3
         /// </summary>
         private void ClearControlsStep3() {
+            calcDeepLevelsButton.Enabled = false;
             numberOfMaxDeepLevel.Value = 1;
             deepLevelInfo.Items.Clear();
             selectedStatisticList.Items.Clear();
@@ -289,7 +291,9 @@ namespace DeepParameters {
             // Clear data grid view
             ClearDataGV(dataSignalReliability);
 
-            RunBackgrounWorkerGetReliabilityForSignal();
+            if (printReliabToDataGV.Checked) {
+                RunBackgrounWorkerGetReliabilityForSignal();
+            }
 
             ClearControlsStep3();
             
@@ -302,6 +306,10 @@ namespace DeepParameters {
             deepLevelInfo.Items.Add(GetNewRowOfDeepLevel(1));
 
             researchParametersTab.Enabled = true;
+
+            if (!printReliabToDataGV.Checked) {
+                allTabs.SelectTab(researchParametersTab);
+            }
         }
 
         /// <summary>
@@ -569,7 +577,6 @@ namespace DeepParameters {
             RunBackgroundWorkerGetCorrCoeffs();
 
             // Set values for fourth step
-            
             thresholdCorrCoeff.Value = 0;
             corrResultTab.Enabled = true;
             allTabs.SelectTab(corrResultTab);
