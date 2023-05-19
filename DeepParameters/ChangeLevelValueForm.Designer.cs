@@ -111,7 +111,7 @@
             this.MaximumSize = new System.Drawing.Size(313, 230);
             this.MinimumSize = new System.Drawing.Size(313, 230);
             this.Name = "ChangeLevelValueForm";
-            this.Text = "Change value for level";
+            this.Text = "Настройка глубинного уровня";
             ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
