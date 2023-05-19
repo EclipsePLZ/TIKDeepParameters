@@ -63,12 +63,12 @@
             this.selectedStatisticList = new System.Windows.Forms.ListBox();
             this.allStatisticList = new System.Windows.Forms.ListBox();
             this.corrResultTab = new System.Windows.Forms.TabPage();
-            this.resultCorrelationCoefficients = new System.Windows.Forms.DataGridView();
-            this.findCorrelCoeffsButton = new System.Windows.Forms.Button();
-            this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
-            this.thresholdCorrCoeffLabel = new System.Windows.Forms.Label();
-            this.returnCoeffs = new System.Windows.Forms.Button();
             this.getCorrelProgressBar = new System.Windows.Forms.ProgressBar();
+            this.returnCoeffs = new System.Windows.Forms.Button();
+            this.thresholdCorrCoeffLabel = new System.Windows.Forms.Label();
+            this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
+            this.filterCorrelCoeffsButton = new System.Windows.Forms.Button();
+            this.resultCorrelationCoefficients = new System.Windows.Forms.DataGridView();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -80,8 +80,8 @@
             this.researchParametersTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).BeginInit();
             this.corrResultTab.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.thresholdCorrCoeff)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -527,7 +527,7 @@
             this.corrResultTab.Controls.Add(this.returnCoeffs);
             this.corrResultTab.Controls.Add(this.thresholdCorrCoeffLabel);
             this.corrResultTab.Controls.Add(this.thresholdCorrCoeff);
-            this.corrResultTab.Controls.Add(this.findCorrelCoeffsButton);
+            this.corrResultTab.Controls.Add(this.filterCorrelCoeffsButton);
             this.corrResultTab.Controls.Add(this.resultCorrelationCoefficients);
             this.corrResultTab.Location = new System.Drawing.Point(4, 22);
             this.corrResultTab.Name = "corrResultTab";
@@ -536,37 +536,43 @@
             this.corrResultTab.Text = "Результаты";
             this.corrResultTab.UseVisualStyleBackColor = true;
             // 
-            // resultCorrelationCoefficients
+            // getCorrelProgressBar
             // 
-            this.resultCorrelationCoefficients.AllowUserToAddRows = false;
-            this.resultCorrelationCoefficients.AllowUserToDeleteRows = false;
-            this.resultCorrelationCoefficients.AllowUserToResizeRows = false;
-            this.resultCorrelationCoefficients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.resultCorrelationCoefficients.Location = new System.Drawing.Point(14, 15);
-            this.resultCorrelationCoefficients.Name = "resultCorrelationCoefficients";
-            this.resultCorrelationCoefficients.ReadOnly = true;
-            this.resultCorrelationCoefficients.RowHeadersWidth = 51;
-            this.resultCorrelationCoefficients.Size = new System.Drawing.Size(633, 368);
-            this.resultCorrelationCoefficients.TabIndex = 29;
+            this.getCorrelProgressBar.Location = new System.Drawing.Point(14, 364);
+            this.getCorrelProgressBar.Margin = new System.Windows.Forms.Padding(2);
+            this.getCorrelProgressBar.Name = "getCorrelProgressBar";
+            this.getCorrelProgressBar.Size = new System.Drawing.Size(633, 19);
+            this.getCorrelProgressBar.TabIndex = 34;
+            this.getCorrelProgressBar.Visible = false;
             // 
-            // findCorrelCoeffsButton
+            // returnCoeffs
             // 
-            this.findCorrelCoeffsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.findCorrelCoeffsButton.Location = new System.Drawing.Point(692, 130);
-            this.findCorrelCoeffsButton.Name = "findCorrelCoeffsButton";
-            this.findCorrelCoeffsButton.Size = new System.Drawing.Size(85, 30);
-            this.findCorrelCoeffsButton.TabIndex = 30;
-            this.findCorrelCoeffsButton.Text = "Применить";
-            this.findCorrelCoeffsButton.UseVisualStyleBackColor = true;
+            this.returnCoeffs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.returnCoeffs.Location = new System.Drawing.Point(692, 184);
+            this.returnCoeffs.Name = "returnCoeffs";
+            this.returnCoeffs.Size = new System.Drawing.Size(85, 30);
+            this.returnCoeffs.TabIndex = 33;
+            this.returnCoeffs.Text = "Отменить";
+            this.returnCoeffs.UseVisualStyleBackColor = true;
+            this.returnCoeffs.Click += new System.EventHandler(this.returnCoeffs_Click);
+            // 
+            // thresholdCorrCoeffLabel
+            // 
+            this.thresholdCorrCoeffLabel.AutoSize = true;
+            this.thresholdCorrCoeffLabel.Location = new System.Drawing.Point(671, 56);
+            this.thresholdCorrCoeffLabel.Name = "thresholdCorrCoeffLabel";
+            this.thresholdCorrCoeffLabel.Size = new System.Drawing.Size(115, 26);
+            this.thresholdCorrCoeffLabel.TabIndex = 32;
+            this.thresholdCorrCoeffLabel.Text = "Пороговое значение \r\nкорреляции:";
             // 
             // thresholdCorrCoeff
             // 
-            this.thresholdCorrCoeff.DecimalPlaces = 1;
+            this.thresholdCorrCoeff.DecimalPlaces = 2;
             this.thresholdCorrCoeff.Increment = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
-            65536});
+            131072});
             this.thresholdCorrCoeff.Location = new System.Drawing.Point(674, 85);
             this.thresholdCorrCoeff.Maximum = new decimal(new int[] {
             1,
@@ -582,33 +588,29 @@
             0,
             0});
             // 
-            // thresholdCorrCoeffLabel
+            // filterCorrelCoeffsButton
             // 
-            this.thresholdCorrCoeffLabel.AutoSize = true;
-            this.thresholdCorrCoeffLabel.Location = new System.Drawing.Point(671, 56);
-            this.thresholdCorrCoeffLabel.Name = "thresholdCorrCoeffLabel";
-            this.thresholdCorrCoeffLabel.Size = new System.Drawing.Size(115, 26);
-            this.thresholdCorrCoeffLabel.TabIndex = 32;
-            this.thresholdCorrCoeffLabel.Text = "Пороговое значение \r\nкорреляции:";
+            this.filterCorrelCoeffsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.filterCorrelCoeffsButton.Location = new System.Drawing.Point(692, 130);
+            this.filterCorrelCoeffsButton.Name = "filterCorrelCoeffsButton";
+            this.filterCorrelCoeffsButton.Size = new System.Drawing.Size(85, 30);
+            this.filterCorrelCoeffsButton.TabIndex = 30;
+            this.filterCorrelCoeffsButton.Text = "Применить";
+            this.filterCorrelCoeffsButton.UseVisualStyleBackColor = true;
+            this.filterCorrelCoeffsButton.Click += new System.EventHandler(this.filterCorrelCoeffsButton_Click);
             // 
-            // returnCoeffs
+            // resultCorrelationCoefficients
             // 
-            this.returnCoeffs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.returnCoeffs.Location = new System.Drawing.Point(692, 184);
-            this.returnCoeffs.Name = "returnCoeffs";
-            this.returnCoeffs.Size = new System.Drawing.Size(85, 30);
-            this.returnCoeffs.TabIndex = 33;
-            this.returnCoeffs.Text = "Отменить";
-            this.returnCoeffs.UseVisualStyleBackColor = true;
-            // 
-            // getCorrelProgressBar
-            // 
-            this.getCorrelProgressBar.Location = new System.Drawing.Point(14, 364);
-            this.getCorrelProgressBar.Margin = new System.Windows.Forms.Padding(2);
-            this.getCorrelProgressBar.Name = "getCorrelProgressBar";
-            this.getCorrelProgressBar.Size = new System.Drawing.Size(633, 19);
-            this.getCorrelProgressBar.TabIndex = 34;
-            this.getCorrelProgressBar.Visible = false;
+            this.resultCorrelationCoefficients.AllowUserToAddRows = false;
+            this.resultCorrelationCoefficients.AllowUserToDeleteRows = false;
+            this.resultCorrelationCoefficients.AllowUserToResizeRows = false;
+            this.resultCorrelationCoefficients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultCorrelationCoefficients.Location = new System.Drawing.Point(14, 15);
+            this.resultCorrelationCoefficients.Name = "resultCorrelationCoefficients";
+            this.resultCorrelationCoefficients.ReadOnly = true;
+            this.resultCorrelationCoefficients.RowHeadersWidth = 51;
+            this.resultCorrelationCoefficients.Size = new System.Drawing.Size(633, 368);
+            this.resultCorrelationCoefficients.TabIndex = 29;
             // 
             // MainFrom
             // 
@@ -640,8 +642,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numberOfMaxDeepLevel)).EndInit();
             this.corrResultTab.ResumeLayout(false);
             this.corrResultTab.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.thresholdCorrCoeff)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultCorrelationCoefficients)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -691,7 +693,7 @@
         private System.Windows.Forms.Button returnCoeffs;
         private System.Windows.Forms.Label thresholdCorrCoeffLabel;
         private System.Windows.Forms.NumericUpDown thresholdCorrCoeff;
-        private System.Windows.Forms.Button findCorrelCoeffsButton;
+        private System.Windows.Forms.Button filterCorrelCoeffsButton;
         private System.Windows.Forms.DataGridView resultCorrelationCoefficients;
         private System.Windows.Forms.ProgressBar getCorrelProgressBar;
     }

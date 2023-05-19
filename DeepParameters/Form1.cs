@@ -110,7 +110,7 @@ namespace DeepParameters {
         private void ClearControlsStep4() {
             ClearDataGV(resultCorrelationCoefficients);
             thresholdCorrCoeff.Value = 0;
-            findCorrelCoeffsButton.Enabled = false;
+            filterCorrelCoeffsButton.Enabled = false;
             returnCoeffs.Enabled = false;
         }
 
@@ -678,8 +678,10 @@ namespace DeepParameters {
                 correlCoeffs[item.Key] = correl;
             }
 
-            Action action = () => PrintCorrelationResult();
+            Action action = () => PrintCorrelationResult(correlCoeffs);
             resultCorrelationCoefficients.Invoke(action);
+
+            filterCorrelCoeffsButton.Invoke(new Action<bool>((b) => filterCorrelCoeffsButton.Enabled = b), true);
             bgWorker.CancelAsync();
         }
 
@@ -734,11 +736,50 @@ namespace DeepParameters {
         /// <summary>
         /// Print correlation results in data grid view
         /// </summary>
-        private void PrintCorrelationResult() {
+        private void PrintCorrelationResult(Dictionary<string, double> corr) {
             ClearDataGV(resultCorrelationCoefficients, true);
-            foreach (var item in correlCoeffs) {
+            foreach (var item in corr) {
                 resultCorrelationCoefficients.Rows.Add(new string[] { item.Key, item.Value.ToString() });
             }
+        }
+
+
+        private void filterCorrelCoeffsButton_Click(object sender, EventArgs e) {
+            try {
+                FilterCorrelationCoefficients(Convert.ToDouble(thresholdCorrCoeff.Value));
+            }
+            catch {
+                MessageBox.Show("Вы ввели недопустипое пороговое значение");
+            }
+        }
+
+        /// <summary>
+        /// Filter correlation coefficients by threshold value
+        /// </summary>
+        /// <param name="thresholdValue">Threshold value</param>
+        private void FilterCorrelationCoefficients(double thresholdValue) {
+            Dictionary<string, double> corr = new Dictionary<string, double>();
+
+            // Leave the statistics whose correlation coefficients are greater than the threshold value
+            foreach (var item in correlCoeffs) {
+                if (item.Value >= thresholdValue) {
+                    corr.Add(item.Key, item.Value);
+                }
+            }
+
+            ClearDataGV(resultCorrelationCoefficients, true);
+            PrintCorrelationResult(corr);
+            returnCoeffs.Enabled = true;
+        }
+
+        /// <summary>
+        /// Print all correlation coefficients
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void returnCoeffs_Click(object sender, EventArgs e) {
+            ClearDataGV(resultCorrelationCoefficients, true);
+            PrintCorrelationResult(correlCoeffs);
         }
 
         /// <summary>
@@ -756,6 +797,9 @@ namespace DeepParameters {
                     break;
                 case 2:
                     helpAllSteps.ToolTipText = StepsInfo.Step3;
+                    break;
+                case 3:
+                    helpAllSteps.ToolTipText = StepsInfo.Step4;
                     break;
             }
         }
