@@ -872,9 +872,6 @@ namespace DeepParameters {
 
 
                     // tab2
-                    buttonCalcReliabilityInterval.Invoke(new Action<Point>((loc) => buttonCalcReliabilityInterval.Location = loc),
-                        new Point(buttonCalcReliabilityInterval.Location.X, buttonCalcReliabilityInterval.Location.Y + heightDiff));
-
                     dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
                         new Size(dataSignalReliability.Width + widthDiff, dataSignalReliability.Height + heightDiff));
 
@@ -921,6 +918,23 @@ namespace DeepParameters {
 
                     deepLevelInfo.Invoke(new Action<Size>((size) => deepLevelInfo.Size = size),
                         new Size(deepLevelInfo.Width, calcDeepLevelsButton.Location.Y - deepLevelInfo.Location.Y - 22));
+
+
+                    // tab4
+                    thresholdCorrCoeffLabel.Invoke(new Action<Point>((loc) => thresholdCorrCoeffLabel.Location = loc),
+                        new Point(thresholdCorrCoeffLabel.Location.X + widthDiff, thresholdCorrCoeffLabel.Location.Y));
+
+                    thresholdCorrCoeff.Invoke(new Action<Point>((loc) => thresholdCorrCoeff.Location = loc),
+                        new Point(thresholdCorrCoeff.Location.X + widthDiff, thresholdCorrCoeff.Location.Y));
+
+                    filterCorrelCoeffsButton.Invoke(new Action<Point>((loc) => filterCorrelCoeffsButton.Location = loc),
+                       new Point(filterCorrelCoeffsButton.Location.X + widthDiff, filterCorrelCoeffsButton.Location.Y));
+
+                    returnCoeffs.Invoke(new Action<Point>((loc) => returnCoeffs.Location = loc),
+                       new Point(returnCoeffs.Location.X + widthDiff, returnCoeffs.Location.Y));
+
+                    resultCorrelationCoefficients.Invoke(new Action<Size>((size) => resultCorrelationCoefficients.Size = size),
+                        new Size(resultCorrelationCoefficients.Width + widthDiff, resultCorrelationCoefficients.Height + heightDiff));
                 } 
             }
         }

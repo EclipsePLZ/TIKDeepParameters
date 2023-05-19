@@ -63,7 +63,6 @@
             this.selectedStatisticList = new System.Windows.Forms.ListBox();
             this.allStatisticList = new System.Windows.Forms.ListBox();
             this.corrResultTab = new System.Windows.Forms.TabPage();
-            this.getCorrelProgressBar = new System.Windows.Forms.ProgressBar();
             this.returnCoeffs = new System.Windows.Forms.Button();
             this.thresholdCorrCoeffLabel = new System.Windows.Forms.Label();
             this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
@@ -523,7 +522,6 @@
             // 
             // corrResultTab
             // 
-            this.corrResultTab.Controls.Add(this.getCorrelProgressBar);
             this.corrResultTab.Controls.Add(this.returnCoeffs);
             this.corrResultTab.Controls.Add(this.thresholdCorrCoeffLabel);
             this.corrResultTab.Controls.Add(this.thresholdCorrCoeff);
@@ -535,15 +533,6 @@
             this.corrResultTab.TabIndex = 3;
             this.corrResultTab.Text = "Результаты";
             this.corrResultTab.UseVisualStyleBackColor = true;
-            // 
-            // getCorrelProgressBar
-            // 
-            this.getCorrelProgressBar.Location = new System.Drawing.Point(14, 364);
-            this.getCorrelProgressBar.Margin = new System.Windows.Forms.Padding(2);
-            this.getCorrelProgressBar.Name = "getCorrelProgressBar";
-            this.getCorrelProgressBar.Size = new System.Drawing.Size(633, 19);
-            this.getCorrelProgressBar.TabIndex = 34;
-            this.getCorrelProgressBar.Visible = false;
             // 
             // returnCoeffs
             // 
@@ -695,7 +684,6 @@
         private System.Windows.Forms.NumericUpDown thresholdCorrCoeff;
         private System.Windows.Forms.Button filterCorrelCoeffsButton;
         private System.Windows.Forms.DataGridView resultCorrelationCoefficients;
-        private System.Windows.Forms.ProgressBar getCorrelProgressBar;
     }
 }
 
