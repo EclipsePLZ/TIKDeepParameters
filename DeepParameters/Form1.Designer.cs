@@ -37,6 +37,7 @@
             this.choosenAccidentLabel = new System.Windows.Forms.Label();
             this.selectAccident = new System.Windows.Forms.ComboBox();
             this.findReliabIntervalTab = new System.Windows.Forms.TabPage();
+            this.printReliabToDataGV = new System.Windows.Forms.CheckBox();
             this.progressBarReliability = new System.Windows.Forms.ProgressBar();
             this.dataSignalReliability = new System.Windows.Forms.DataGridView();
             this.buttonCalcReliabilityInterval = new System.Windows.Forms.Button();
@@ -68,7 +69,6 @@
             this.thresholdCorrCoeff = new System.Windows.Forms.NumericUpDown();
             this.filterCorrelCoeffsButton = new System.Windows.Forms.Button();
             this.resultCorrelationCoefficients = new System.Windows.Forms.DataGridView();
-            this.printReliabToDataGV = new System.Windows.Forms.CheckBox();
             this.menuStrip.SuspendLayout();
             this.allTabs.SuspendLayout();
             this.loadDataTab.SuspendLayout();
@@ -110,7 +110,7 @@
             // OpenFile
             // 
             this.OpenFile.Name = "OpenFile";
-            this.OpenFile.Size = new System.Drawing.Size(121, 22);
+            this.OpenFile.Size = new System.Drawing.Size(180, 22);
             this.OpenFile.Text = "Открыть";
             this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
             // 
@@ -228,6 +228,16 @@
             this.findReliabIntervalTab.TabIndex = 1;
             this.findReliabIntervalTab.Text = "Расчет интервала надежности";
             this.findReliabIntervalTab.UseVisualStyleBackColor = true;
+            // 
+            // printReliabToDataGV
+            // 
+            this.printReliabToDataGV.AutoSize = true;
+            this.printReliabToDataGV.Location = new System.Drawing.Point(24, 272);
+            this.printReliabToDataGV.Name = "printReliabToDataGV";
+            this.printReliabToDataGV.Size = new System.Drawing.Size(184, 17);
+            this.printReliabToDataGV.TabIndex = 30;
+            this.printReliabToDataGV.Text = "Вывести результаты в таблицу";
+            this.printReliabToDataGV.UseVisualStyleBackColor = true;
             // 
             // progressBarReliability
             // 
@@ -602,16 +612,6 @@
             this.resultCorrelationCoefficients.RowHeadersWidth = 51;
             this.resultCorrelationCoefficients.Size = new System.Drawing.Size(633, 368);
             this.resultCorrelationCoefficients.TabIndex = 29;
-            // 
-            // printReliabToDataGV
-            // 
-            this.printReliabToDataGV.AutoSize = true;
-            this.printReliabToDataGV.Location = new System.Drawing.Point(24, 272);
-            this.printReliabToDataGV.Name = "printReliabToDataGV";
-            this.printReliabToDataGV.Size = new System.Drawing.Size(184, 17);
-            this.printReliabToDataGV.TabIndex = 30;
-            this.printReliabToDataGV.Text = "Вывести результаты в таблицу";
-            this.printReliabToDataGV.UseVisualStyleBackColor = true;
             // 
             // MainFrom
             // 

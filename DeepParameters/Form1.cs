@@ -174,7 +174,7 @@ namespace DeepParameters {
             else {
                 List<List<string>> allRows = fileService.Open(dialogService.FilePath);
                 if (allRows.Count > 0) {
-                    // Add headers to data grid veiw
+                    // Add headers to data grid view
                     accidentsData.Invoke(new Action<List<string>>((s) => SetDataGVColumnHeaders(s, accidentsData, false)), allRows[0]);
 
                     // Create start parameters for progress bar
