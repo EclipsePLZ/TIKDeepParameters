@@ -1,6 +1,5 @@
 ﻿using DeepParameters.Work_WIth_Files;
 using DeepParameters.Work_WIth_Files.Interfaces;
-using ExcelDataReader.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,6 +40,7 @@ namespace DeepParameters {
             helpAllSteps.ToolTipText = StepsInfo.Step1;
 
             numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
+            numberShiftStep.Maximum = Decimal.MaxValue;
 
             resizeWorker.DoWork += new DoWorkEventHandler(DoResizeComponents);
             resizeWorker.WorkerSupportsCancellation = true;
