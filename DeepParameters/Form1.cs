@@ -35,12 +35,8 @@ namespace DeepParameters {
 
             // Locks all tabs except the first one
             LocksAllTabs();
-            loadDataTab.Enabled = true;
 
-            helpAllSteps.ToolTipText = StepsInfo.Step1;
-
-            numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
-            numberShiftStep.Maximum = Decimal.MaxValue;
+            SetStartParametrs();
 
             resizeWorker.DoWork += new DoWorkEventHandler(DoResizeComponents);
             resizeWorker.WorkerSupportsCancellation = true;
@@ -54,6 +50,17 @@ namespace DeepParameters {
             foreach (TabPage tab in allTabs.TabPages) {
                 tab.Enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Set start parameters in application
+        /// </summary>
+        private void SetStartParametrs() {
+            loadDataTab.Enabled = true;
+            helpAllSteps.ToolTipText = StepsInfo.Step1;
+            numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
+            numberShiftStep.Maximum = Decimal.MaxValue;
+            numberShiftStep.Value = 100;
         }
 
         /// <summary>
@@ -100,6 +107,7 @@ namespace DeepParameters {
         private void ClearControlsStep3() {
             calcDeepLevelsButton.Enabled = false;
             numberOfMaxDeepLevel.Value = 1;
+            numberShiftStep.Value = 100;
             deepLevelInfo.Items.Clear();
             selectedStatisticList.Items.Clear();
             allStatisticList.Items.Clear();
@@ -598,18 +606,20 @@ namespace DeepParameters {
 
         private void GetCorrelationCoefficients(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
             correlCoeffs.Clear();
-            
+
             // Find Information about intervals
+            int stepShiftSize = (int)numberShiftStep.Value;
             int sizeOfInterval = CalcRequireNumberOfObservations();
             int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text) - 1;
-            int numberOfIntervals = (indexWithMaxSignal + 1) / sizeOfInterval;
+            int numberOfIntervals = (int)Math.Ceiling((Convert.ToDouble(indexWithMaxSignal + 1 - sizeOfInterval)) / Convert.ToDouble(stepShiftSize));
+            //int numberOfIntervals = (indexWithMaxSignal + 1) / sizeOfInterval;
 
             // List that contains all statistics calculating by all values
             List<List<Dictionary<string, List<double>>>> statisticsValues = new List<List<Dictionary<string, List<double>>>>();
 
             // List that contains intervals for first deep level
             List<List<double>> zeroLevel = SplitVibroSignalIntoIntervals(sizeOfInterval, 
-                indexWithMaxSignal - (sizeOfInterval * numberOfIntervals), indexWithMaxSignal);
+                indexWithMaxSignal - (stepShiftSize * (numberOfIntervals - 1) + sizeOfInterval), indexWithMaxSignal, stepShiftSize);
 
             // Dictionary for values of each statistic for calc correl
             Dictionary<string, List<double>> statisticValuesForCorrel = new Dictionary<string, List<double>>();
@@ -699,10 +709,10 @@ namespace DeepParameters {
         /// <param name="startPosition">Start position for splitting</param>
         /// <param name="endPosition">End position for splitting</param>
         /// <returns>Intervals of vibration signal</returns>
-        private List<List<double>> SplitVibroSignalIntoIntervals(int numberValuesInInterval, int startPosition, int endPosition) {
+        private List<List<double>> SplitVibroSignalIntoIntervals(int numberValuesInInterval, int startPosition, int endPosition, int stepSize) {
             List<List<double>> splitSignal = new List<List<double>>();
 
-            for (int i = startPosition; i <= endPosition - numberValuesInInterval; i += numberValuesInInterval) {
+            for (int i = startPosition; i <= endPosition - numberValuesInInterval; i += stepSize) {
                 splitSignal.Add(AccidentValues.GetRange(i, numberValuesInInterval));
             }
 
