@@ -12,9 +12,9 @@ The second step is to calculate the reliability, based on vibration signal. Reli
 ![step2](https://github.com/EclipsePLZ/TIKDeepParameters/assets/84061271/7266ad75-090f-4f6e-90d9-71ba00cd6d29)
 
 ## Setting parameters for the study
-The third step is the setting of parameters to investigate the relationship between the underlying statistical parameters and the reliability coefficient. At this step it is possible to select the maximum depth for the calculation, to set the interval for calculating the characteristics for each level and to select the investigated statistical characteristics.
+The third step is to set the parameters to investigate the relationship between the underlying statistical parameters and the reliability coefficient. At this step you can select the maximum depth to calculate, the value of the shift, set the interval for calculating the characteristics for each level and select the investigated statistical characteristics.
 
-![step3_1](https://github.com/EclipsePLZ/TIKDeepParameters/assets/84061271/e6a9bd4c-bc4e-4068-a0ec-7f0c7d90bdd0)
+![step3_1](https://github.com/EclipsePLZ/TIKDeepParameters/assets/84061271/83586d4c-e31d-42ba-99bf-6d3f2416e444)
 ![step3_2](https://github.com/EclipsePLZ/TIKDeepParameters/assets/84061271/dd22ae3e-d6d1-4c11-999e-1b273116df59)
 
 ## Result output
