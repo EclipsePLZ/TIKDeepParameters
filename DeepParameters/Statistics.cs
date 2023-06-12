@@ -85,6 +85,10 @@ namespace DeepParameters {
             double sumSqr1 = values1.Sum(x => Math.Pow((x - avg1), 2.0));
             double sumSqr2 = values2.Sum(y => Math.Pow((y - avg2), 2.0));
 
+            if (sumSqr1 == 0 || sumSqr2 == 0) {
+                throw new ArgumentException("The denominator is zero");
+            }
+
             return sum1 / Math.Sqrt(sumSqr1 * sumSqr2);
         }
 
@@ -245,7 +249,11 @@ namespace DeepParameters {
         /// <param name="values">List of values</param>
         /// <returns>Variation coefficient</returns>
         public static double VariationCoefficient(IEnumerable<double> values) {
-            return StandardDeviation(values) / values.Average();
+            double avg = values.Average();
+            if (avg == 0) {
+                throw new ArgumentException("The denominator is zero");
+            }
+            return StandardDeviation(values) / avg;
         }
 
         /// <summary>
