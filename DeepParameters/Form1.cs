@@ -1,12 +1,12 @@
 ﻿using DeepParameters.Work_WIth_Files;
 using DeepParameters.Work_WIth_Files.Interfaces;
-using ExcelDataReader.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,11 +36,8 @@ namespace DeepParameters {
 
             // Locks all tabs except the first one
             LocksAllTabs();
-            loadDataTab.Enabled = true;
 
-            helpAllSteps.ToolTipText = StepsInfo.Step1;
-
-            numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
+            SetStartParametrs();
 
             resizeWorker.DoWork += new DoWorkEventHandler(DoResizeComponents);
             resizeWorker.WorkerSupportsCancellation = true;
@@ -54,6 +51,17 @@ namespace DeepParameters {
             foreach (TabPage tab in allTabs.TabPages) {
                 tab.Enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Set start parameters in application
+        /// </summary>
+        private void SetStartParametrs() {
+            loadDataTab.Enabled = true;
+            helpAllSteps.ToolTipText = StepsInfo.Step1;
+            numberOfStdForMaxLevel.Maximum = Decimal.MaxValue;
+            numberShiftStep.Maximum = Decimal.MaxValue;
+            numberShiftStep.Value = 100;
         }
 
         /// <summary>
@@ -100,6 +108,7 @@ namespace DeepParameters {
         private void ClearControlsStep3() {
             calcDeepLevelsButton.Enabled = false;
             numberOfMaxDeepLevel.Value = 1;
+            numberShiftStep.Value = 100;
             deepLevelInfo.Items.Clear();
             selectedStatisticList.Items.Clear();
             allStatisticList.Items.Clear();
@@ -114,6 +123,8 @@ namespace DeepParameters {
             thresholdCorrCoeff.Value = 0;
             filterCorrelCoeffsButton.Enabled = false;
             returnCoeffs.Enabled = false;
+            labelCalcCorrelDeepLevel.Visible = false;
+            labelCalcCorrelDone.Visible = false;
         }
 
         /// <summary>
@@ -174,7 +185,7 @@ namespace DeepParameters {
             else {
                 List<List<string>> allRows = fileService.Open(dialogService.FilePath);
                 if (allRows.Count > 0) {
-                    // Add headers to data grid veiw
+                    // Add headers to data grid view
                     accidentsData.Invoke(new Action<List<string>>((s) => SetDataGVColumnHeaders(s, accidentsData, false)), allRows[0]);
 
                     // Create start parameters for progress bar
@@ -331,38 +342,44 @@ namespace DeepParameters {
         }
 
         private void FindReliabilityForSignal(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
-            // Create start parameters for progress bar
-            int progress = 0;
-            int step = AccidentValues.Count / 100;
-            int oneBarInProgress = 1;
-            if (AccidentValues.Count < 100) {
-                step = 1;
-                oneBarInProgress = (100 / AccidentValues.Count) + 1;
+            // Check if bgworker has been stopped
+            if (bgWorker.CancellationPending) {
+                e.Cancel = true;
             }
-
-            int prevReliab = 100;
-
-            for (int i = 0; i < AccidentValues.Count; i++) {
-                // Find progress
-                if (i % step == 0) {
-                    progress += oneBarInProgress;
-                    bgWorker.ReportProgress(progress);
+            else {
+                // Create start parameters for progress bar
+                int progress = 0;
+                int step = AccidentValues.Count / 100;
+                int oneBarInProgress = 1;
+                if (AccidentValues.Count < 100) {
+                    step = 1;
+                    oneBarInProgress = (100 / AccidentValues.Count) + 1;
                 }
 
-                prevReliab = GetReliabCoeff(prevReliab, AccidentValues[i]);
-                // Add vibration value with reliability to data grid view
-                dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
-                    new List<string>() { AccidentValues[i].ToString(), (prevReliab).ToString() + "%" });
+                int prevReliab = 100;
+
+                for (int i = 0; i < AccidentValues.Count; i++) {
+                    // Find progress
+                    if (i % step == 0) {
+                        progress += oneBarInProgress;
+                        bgWorker.ReportProgress(progress);
+                    }
+
+                    prevReliab = GetReliabCoeff(prevReliab, AccidentValues[i]);
+                    // Add vibration value with reliability to data grid view
+                    dataSignalReliability.Invoke(new Action<List<string>>((row) => dataSignalReliability.Rows.Add(row.ToArray())),
+                        new List<string>() { AccidentValues[i].ToString(), (prevReliab).ToString() + "%" });
+                }
+
+                // Hide progress bar
+                progressBarReliability.Invoke(new Action<bool>((b) => progressBarReliability.Visible = b), false);
+
+                // Resize dataGrid
+                dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
+                    new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
+
+                bgWorker.CancelAsync();
             }
-
-            // Hide progress bar
-            progressBarReliability.Invoke(new Action<bool>((b) => progressBarReliability.Visible = b), false);
-
-            // Resize dataGrid
-            dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
-                new Size(dataSignalReliability.Width, dataSignalReliability.Height + 25));
-
-            bgWorker.CancelAsync();
         }
 
         /// <summary>
@@ -589,107 +606,140 @@ namespace DeepParameters {
             SetDataGVColumnHeaders(new List<string>() { "Статистика", "Модуль коэффициента корреляции" },
                 resultCorrelationCoefficients, true, new List<int>() { 1 });
 
-            // Run background worker
+            // Run background worker for find correlation coefficients
             BackgroundWorker bgWorker = new BackgroundWorker();
             bgWorker.DoWork += new DoWorkEventHandler((sender, e) => GetCorrelationCoefficients(sender, e, bgWorker));
             bgWorker.WorkerSupportsCancellation = true;
             bgWorker.RunWorkerAsync();
+
+            // Background worker for loading label
+            BackgroundWorker bgWorkerLoad = new BackgroundWorker();
+            bgWorkerLoad.DoWork += new DoWorkEventHandler((sender, e) =>
+                ShowLoadingFunctionPreprocessing(sender, e, bgWorkerLoad, bgWorker, labelCalcCorrelDeepLevel,
+                labelCalcCorrelDone));
+            bgWorkerLoad.WorkerSupportsCancellation = true;
+            bgWorkerLoad.RunWorkerAsync();
         }
 
         private void GetCorrelationCoefficients(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker) {
-            correlCoeffs.Clear();
-            
-            // Find Information about intervals
-            int sizeOfInterval = CalcRequireNumberOfObservations();
-            int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text) - 1;
-            int numberOfIntervals = (indexWithMaxSignal + 1) / sizeOfInterval;
+            // Check if bgworker has been stopped
+            if (bgWorker.CancellationPending) {
+                e.Cancel = true;
+            }
+            else {
+                correlCoeffs.Clear();
 
-            // List that contains all statistics calculating by all values
-            List<List<Dictionary<string, List<double>>>> statisticsValues = new List<List<Dictionary<string, List<double>>>>();
+                // Find Information about intervals
+                int stepShiftSize = (int)numberShiftStep.Value;
+                int sizeOfInterval = CalcRequireNumberOfObservations();
+                int indexWithMaxSignal = Convert.ToInt32(indexOfMaxValue.Text) - 1;
+                int numberOfIntervals = (int)Math.Ceiling((Convert.ToDouble(indexWithMaxSignal + 1 - sizeOfInterval)) / Convert.ToDouble(stepShiftSize));
 
-            // List that contains intervals for first deep level
-            List<List<double>> zeroLevel = SplitVibroSignalIntoIntervals(sizeOfInterval, 
-                indexWithMaxSignal - (sizeOfInterval * numberOfIntervals), indexWithMaxSignal);
+                // Get selected statistics
+                List<string> calcStatistics = selectedStatisticList.Items.Cast<String>().ToList();
 
-            // Dictionary for values of each statistic for calc correl
-            Dictionary<string, List<double>> statisticValuesForCorrel = new Dictionary<string, List<double>>();
+                // List that contains all statistics calculating by all values
+                List<List<Dictionary<string, List<double>>>> statisticsValues = new List<List<Dictionary<string, List<double>>>>();
 
-            // Get reliability list for calc correlation
-            List<double> reliabList = GetReliabilityList(zeroLevel);
+                // List that contains intervals for first deep level
+                List<List<double>> zeroLevel = SplitVibroSignalIntoIntervals(sizeOfInterval,
+                    indexWithMaxSignal - (stepShiftSize * (numberOfIntervals - 1) + sizeOfInterval), indexWithMaxSignal, stepShiftSize);
 
-            // Find all deep statistics
-            for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
+                // Dictionary for values of each statistic for calc correl
+                Dictionary<string, List<double>> statisticValuesForCorrel = new Dictionary<string, List<double>>();
 
-                // List with all statistics for every level
-                List<Dictionary<string, List<double>>> nextIntervalStatistics = new List<Dictionary<string, List<double>>>();
+                // Get reliability list for calc correlation
+                List<double> reliabList = GetReliabilityList(zeroLevel);
 
-                // Find number of require observation for current level
-                int oneStep = GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString());
+                // Find all deep statistics
+                for (int i = 0; i < deepLevelInfo.Items.Count; i++) {
 
-                for (int interval = 0; interval < numberOfIntervals; interval++) {
+                    // List with all statistics for every level
+                    List<Dictionary<string, List<double>>> nextIntervalStatistics = new List<Dictionary<string, List<double>>>();
 
-                    // List that contains statistics values for one interval for each level step
-                    Dictionary<string, List<double>> nextStatistics = new Dictionary<string, List<double>>();
+                    // Find number of require observation for current level
+                    int oneStep = GetNumberOfObservationsFromLevel(deepLevelInfo.Items[i].ToString());
 
-                    // If we explore the first level, we will use zeroLevel list
-                    if (i == 0) {
-                        // Find number of steps in each interval
-                        int numberOfSteps = (sizeOfInterval / oneStep);
+                    for (int interval = 0; interval < numberOfIntervals; interval++) {
 
-                        // Find values for each statistics
-                        foreach (var item in Statistics.Functions) {
-                            if (!statisticValuesForCorrel.Keys.Contains(item.Key)) {
-                                statisticValuesForCorrel[item.Key] = new List<double>();
-                            }
-                            nextStatistics[item.Key] = new List<double>();
+                        // List that contains statistics values for one interval for each level step
+                        Dictionary<string, List<double>> nextStatistics = new Dictionary<string, List<double>>();
 
-                            // Add function result of each step to nextStatistics
-                            for (int step = 0; step < numberOfSteps; step++) {
-                                nextStatistics[item.Key].Add(item.Value(zeroLevel[interval].GetRange(step * oneStep, oneStep)));
-                            }
-                            statisticValuesForCorrel[item.Key].Add(nextStatistics[item.Key].Last());
-                        }
-                    }
-                    // Ohterwise we will use data on previous levels (statisticsValues)
-                    else {
-                        // Find values for each statistics for each statistics that was calculated on the previous level
-                        foreach (var prevStat in statisticsValues[i - 1][interval]) {
-                            foreach (var item in Statistics.Functions) {
-                                string combineStatName = item.Key + ", " + prevStat.Key;
-                                if (!statisticValuesForCorrel.Keys.Contains(combineStatName)) {
-                                    statisticValuesForCorrel[combineStatName] = new List<double>();
+                        // If we explore the first level, we will use zeroLevel list
+                        if (i == 0) {
+                            // Find number of steps in each interval
+                            int numberOfSteps = (sizeOfInterval / oneStep);
+
+                            // Find values for each statistics
+                            foreach (var item in calcStatistics) {
+                                var statistics = Statistics.Functions[item];
+                                if (!statisticValuesForCorrel.Keys.Contains(item)) {
+                                    statisticValuesForCorrel[item] = new List<double>();
                                 }
-                                nextStatistics[combineStatName] = new List<double>();
-
-                                // Find number of availavle step in previous level statistic
-                                int numberOfSteps = prevStat.Value.Count / oneStep;
+                                nextStatistics[item] = new List<double>();
 
                                 // Add function result of each step to nextStatistics
                                 for (int step = 0; step < numberOfSteps; step++) {
-                                    nextStatistics[combineStatName].
-                                        Add(item.Value(prevStat.Value.GetRange(step * oneStep, oneStep)));
+                                    try {
+                                        nextStatistics[item].Add(statistics(zeroLevel[interval].GetRange(step * oneStep, oneStep)));
+                                    }
+                                    catch { }
                                 }
-
-                                statisticValuesForCorrel[combineStatName].Add(nextStatistics[combineStatName].Last());
+                                statisticValuesForCorrel[item].Add(nextStatistics[item].Last());
                             }
                         }
+                        // Ohterwise we will use data on previous levels (statisticsValues)
+                        else {
+                            // Find values for each statistics for each statistics that was calculated on the previous level
+                            foreach (var prevStat in statisticsValues[i - 1][interval]) {
+                                foreach (var item in calcStatistics) {
+                                    var statistics = Statistics.Functions[item];
+                                    string combineStatName = item + ", " + prevStat.Key;
+                                    if (!statisticValuesForCorrel.Keys.Contains(combineStatName)) {
+                                        statisticValuesForCorrel[combineStatName] = new List<double>();
+                                    }
+                                    nextStatistics[combineStatName] = new List<double>();
+
+                                    // Find number of availavle step in previous level statistic
+                                    int numberOfSteps = prevStat.Value.Count / oneStep;
+
+                                    // Add function result of each step to nextStatistics
+                                    for (int step = 0; step < numberOfSteps; step++) {
+                                        try {
+                                            nextStatistics[combineStatName].
+                                                Add(statistics(prevStat.Value.GetRange(step * oneStep, oneStep)));
+                                        }
+                                        catch { }
+                                    }
+
+                                    try {
+                                        statisticValuesForCorrel[combineStatName].Add(nextStatistics[combineStatName].Last());
+                                    }
+                                    catch { }
+                                }
+                            }
+                        }
+                        nextIntervalStatistics.Add(nextStatistics);
                     }
-                    nextIntervalStatistics.Add(nextStatistics);
+                    statisticsValues.Add(nextIntervalStatistics);
                 }
-                statisticsValues.Add(nextIntervalStatistics);
+
+                // Find correlation coefficients for each statistics
+                foreach (var item in statisticValuesForCorrel) {
+                    try {
+                        double correl = Math.Abs(Statistics.PearsonCorrelationCoefficient(item.Value, reliabList));
+                        correlCoeffs[item.Key] = correl;
+                    }
+                    catch { }
+
+                }
+
+                Action action = () => PrintCorrelationResult(correlCoeffs);
+                resultCorrelationCoefficients.Invoke(action);
+
+                filterCorrelCoeffsButton.Invoke(new Action<bool>((b) => filterCorrelCoeffsButton.Enabled = b), true);
+                bgWorker.CancelAsync();
             }
-
-            // Find correlation coefficients for each statistics
-            foreach (var item in statisticValuesForCorrel) {
-                double correl = Math.Abs(Statistics.PearsonCorrelationCoefficient(item.Value, reliabList));
-                correlCoeffs[item.Key] = correl;
-            }
-
-            Action action = () => PrintCorrelationResult(correlCoeffs);
-            resultCorrelationCoefficients.Invoke(action);
-
-            filterCorrelCoeffsButton.Invoke(new Action<bool>((b) => filterCorrelCoeffsButton.Enabled = b), true);
-            bgWorker.CancelAsync();
         }
 
         /// <summary>
@@ -699,10 +749,10 @@ namespace DeepParameters {
         /// <param name="startPosition">Start position for splitting</param>
         /// <param name="endPosition">End position for splitting</param>
         /// <returns>Intervals of vibration signal</returns>
-        private List<List<double>> SplitVibroSignalIntoIntervals(int numberValuesInInterval, int startPosition, int endPosition) {
+        private List<List<double>> SplitVibroSignalIntoIntervals(int numberValuesInInterval, int startPosition, int endPosition, int stepSize) {
             List<List<double>> splitSignal = new List<List<double>>();
 
-            for (int i = startPosition; i <= endPosition - numberValuesInInterval; i += numberValuesInInterval) {
+            for (int i = startPosition; i <= endPosition - numberValuesInInterval; i += stepSize) {
                 splitSignal.Add(AccidentValues.GetRange(i, numberValuesInInterval));
             }
 
@@ -745,11 +795,62 @@ namespace DeepParameters {
         /// </summary>
         private void PrintCorrelationResult(Dictionary<string, double> corr) {
             ClearDataGV(resultCorrelationCoefficients, true);
-            foreach (var item in corr) {
-                resultCorrelationCoefficients.Rows.Add(new string[] { item.Key, item.Value.ToString() });
+            foreach (var item in corr) {                
+                resultCorrelationCoefficients.Rows.Add(new string[] { item.Key, GetNumberInStandardFormat(item.Value) });
             }
         }
 
+        /// <summary>
+        /// Convert number to standard notation
+        /// </summary>
+        /// <param name="number">Value of number</param>
+        /// <returns>Number in decimal notation</returns>
+        private string GetNumberInStandardFormat(double number) {
+            string strNum = number.ToString();
+
+            if (strNum.Contains('E') || strNum.Contains('e')) {
+                strNum = Decimal.Parse(strNum, System.Globalization.NumberStyles.Float).ToString();
+            }
+
+            return strNum;
+        }
+
+        /// <summary>
+        /// Function for showing logo of the loading
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="bgWorker">Background worker</param>
+        private void ShowLoadingFunctionPreprocessing(object sender, DoWorkEventArgs e, BackgroundWorker bgWorker,
+            BackgroundWorker mainBgWorker, Label loadLabel, Label finishLabel) {
+            // Check if bgworker has been stopped
+            if (bgWorker.CancellationPending) {
+                e.Cancel = true;
+            }
+            else {
+                loadLabel.Invoke(new Action<bool>((vis) => loadLabel.Visible = vis), true);
+
+                // While mainBgWorker is busy, we will update the load indicator
+                while (mainBgWorker.IsBusy == true) {
+                    if (loadLabel.Text.Count(symb => symb == '.') < 3) {
+                        loadLabel.Invoke(new Action<string>((load) => loadLabel.Text = load),
+                            loadLabel.Text + ".");
+                    }
+                    else {
+                        loadLabel.Invoke(new Action<string>((load) => loadLabel.Text = load),
+                            loadLabel.Text.Replace(".", ""));
+                    }
+                    System.Threading.Thread.Sleep(500);
+                }
+
+                // Hide loadLabel
+                loadLabel.Invoke(new Action<bool>((vis) => loadLabel.Visible = vis), false);
+
+                // Showing finish label
+                finishLabel.Invoke(new Action<bool>((vis) => finishLabel.Visible = vis), true);
+                bgWorker.CancelAsync();
+            }
+        }
 
         private void filterCorrelCoeffsButton_Click(object sender, EventArgs e) {
             try {
@@ -821,12 +922,8 @@ namespace DeepParameters {
             exitForm.Show();
         }
 
-        private void MainFrom_ResizeBegin(object sender, EventArgs e) {
+        private void MainFrom_Resize(object sender, EventArgs e) {
             isResizeNeeded = true;
-        }
-
-        private void MainFrom_ResizeEnd(object sender, EventArgs e) {
-            isResizeNeeded = false;
         }
 
         private void MainFrom_FormClosing(object sender, FormClosingEventArgs e) {
@@ -850,100 +947,118 @@ namespace DeepParameters {
         /// Resize all main from components
         /// </summary>
         private void DoResizeComponents(object sender, DoWorkEventArgs e) {
-            while (true) {
-                if (isResizeNeeded) {
-                    int newWidth = this.Width - 28;
-                    int newHeight = this.Height - 67;
-                    int widthDiff = newWidth - allTabs.Width;
-                    int heightDiff = newHeight - allTabs.Height;
-                    allTabs.Invoke(new Action<Size>((size) => allTabs.Size = size), new Size(newWidth, newHeight));
+            // Check if resizeWorker has been stopped
+            if (resizeWorker.CancellationPending) {
+                e.Cancel = true;
+            }
+            else {
+                while (true) {
+                    System.Threading.Thread.Sleep(50);
+                    if (isResizeNeeded) {
+                        int newWidth = this.Width - 28;
+                        int newHeight = this.Height - 67;
+                        int widthDiff = newWidth - allTabs.Width;
+                        int heightDiff = newHeight - allTabs.Height;
+                        allTabs.Invoke(new Action<Size>((size) => allTabs.Size = size), new Size(newWidth, newHeight));
 
-                    // tab1
-                    choosenAccidentLabel.Invoke(new Action<Point>((loc) => choosenAccidentLabel.Location = loc),
-                        new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y));
+                        // tab1
+                        choosenAccidentLabel.Invoke(new Action<Point>((loc) => choosenAccidentLabel.Location = loc),
+                            new Point(choosenAccidentLabel.Location.X + widthDiff, choosenAccidentLabel.Location.Y));
 
-                    selectAccident.Invoke(new Action<Point>((loc) => selectAccident.Location = loc),
-                        new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y));
+                        selectAccident.Invoke(new Action<Point>((loc) => selectAccident.Location = loc),
+                            new Point(selectAccident.Location.X + widthDiff, selectAccident.Location.Y));
 
-                    acceptFaultButton.Invoke(new Action<Point>((loc) => acceptFaultButton.Location = loc),
-                        new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff));
+                        acceptFaultButton.Invoke(new Action<Point>((loc) => acceptFaultButton.Location = loc),
+                            new Point(acceptFaultButton.Location.X + widthDiff, acceptFaultButton.Location.Y + heightDiff));
 
-                    accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size), 
-                        new Size(accidentsData.Width + widthDiff, accidentsData.Height + heightDiff));
+                        accidentsData.Invoke(new Action<Size>((size) => accidentsData.Size = size),
+                            new Size(accidentsData.Width + widthDiff, accidentsData.Height + heightDiff));
 
-                    progressBarDataLoad.Invoke(new Action<Point>((loc) => progressBarDataLoad.Location = loc),
-                        new Point(progressBarDataLoad.Location.X, progressBarDataLoad.Location.Y + heightDiff));
+                        progressBarDataLoad.Invoke(new Action<Point>((loc) => progressBarDataLoad.Location = loc),
+                            new Point(progressBarDataLoad.Location.X, progressBarDataLoad.Location.Y + heightDiff));
 
-                    progressBarDataLoad.Invoke(new Action<Size>((size) => progressBarDataLoad.Size = size), 
-                        new Size(accidentsData.Width, progressBarDataLoad.Height));
-
-
-                    // tab2
-                    dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
-                        new Size(dataSignalReliability.Width + widthDiff, dataSignalReliability.Height + heightDiff));
-
-                    progressBarReliability.Invoke(new Action<Point>((loc) => progressBarReliability.Location = loc),
-                        new Point(progressBarReliability.Location.X, progressBarReliability.Location.Y + heightDiff));
-
-                    progressBarReliability.Invoke(new Action<Size>((size) => progressBarReliability.Size = size),
-                        new Size(dataSignalReliability.Width, progressBarReliability.Height));
+                        progressBarDataLoad.Invoke(new Action<Size>((size) => progressBarDataLoad.Size = size),
+                            new Size(accidentsData.Width, progressBarDataLoad.Height));
 
 
-                    // tab3
-                    selectedStatisticList.Invoke(new Action<Size>((size) => selectedStatisticList.Size = size),
-                        new Size(selectedStatisticList.Width, allTabs.Height - 113));
+                        // tab2
+                        dataSignalReliability.Invoke(new Action<Size>((size) => dataSignalReliability.Size = size),
+                            new Size(dataSignalReliability.Width + widthDiff, dataSignalReliability.Height + heightDiff));
 
-                    selectedStatisticList.Invoke(new Action<Point>((loc) => selectedStatisticList.Location = loc),
-                        new Point(selectedStatisticList.Location.X + widthDiff, selectedStatisticList.Location.Y));
+                        progressBarReliability.Invoke(new Action<Point>((loc) => progressBarReliability.Location = loc),
+                            new Point(progressBarReliability.Location.X, progressBarReliability.Location.Y + heightDiff));
 
-                    selectStatisticLabel.Invoke(new Action<Point>((loc) => selectStatisticLabel.Location = loc),
-                        new Point(selectStatisticLabel.Location.X + widthDiff, selectStatisticLabel.Location.Y));
-
-                    allStatisticList.Invoke(new Action<Size>((size) => allStatisticList.Size = size),
-                        new Size(allStatisticList.Width, allTabs.Height - 113));
-
-                    allStatisticList.Invoke(new Action<Point>((loc) => allStatisticList.Location = loc),
-                        new Point(allStatisticList.Location.X + widthDiff, allStatisticList.Location.Y));
-
-                    allStatisticLabel.Invoke(new Action<Point>((loc) => allStatisticLabel.Location = loc),
-                        new Point(allStatisticLabel.Location.X + widthDiff, allStatisticLabel.Location.Y));
-
-                    toSelectList.Invoke(new Action<Point>((loc) => toSelectList.Location = loc),
-                        new Point(toSelectList.Location.X + widthDiff, toSelectList.Location.Y));
-
-                    toAllList.Invoke(new Action<Point>((loc) => toAllList.Location = loc),
-                        new Point(toAllList.Location.X + widthDiff, toAllList.Location.Y));
-
-                    allToAllList.Invoke(new Action<Point>((loc) => allToAllList.Location = loc),
-                        new Point(allToAllList.Location.X + widthDiff, allToAllList.Location.Y));
-
-                    allToSelectList.Invoke(new Action<Point>((loc) => allToSelectList.Location = loc),
-                        new Point(allToSelectList.Location.X + widthDiff, allToSelectList.Location.Y));
-
-                    calcDeepLevelsButton.Invoke(new Action<Point>((loc) => calcDeepLevelsButton.Location = loc),
-                        new Point(calcDeepLevelsButton.Location.X, calcDeepLevelsButton.Location.Y + heightDiff));
-
-                    deepLevelInfo.Invoke(new Action<Size>((size) => deepLevelInfo.Size = size),
-                        new Size(deepLevelInfo.Width, calcDeepLevelsButton.Location.Y - deepLevelInfo.Location.Y - 22));
+                        progressBarReliability.Invoke(new Action<Size>((size) => progressBarReliability.Size = size),
+                            new Size(dataSignalReliability.Width, progressBarReliability.Height));
 
 
-                    // tab4
-                    thresholdCorrCoeffLabel.Invoke(new Action<Point>((loc) => thresholdCorrCoeffLabel.Location = loc),
-                        new Point(thresholdCorrCoeffLabel.Location.X + widthDiff, thresholdCorrCoeffLabel.Location.Y));
+                        // tab3
+                        selectedStatisticList.Invoke(new Action<Size>((size) => selectedStatisticList.Size = size),
+                            new Size(selectedStatisticList.Width, allTabs.Height - 113));
 
-                    thresholdCorrCoeff.Invoke(new Action<Point>((loc) => thresholdCorrCoeff.Location = loc),
-                        new Point(thresholdCorrCoeff.Location.X + widthDiff, thresholdCorrCoeff.Location.Y));
+                        selectedStatisticList.Invoke(new Action<Point>((loc) => selectedStatisticList.Location = loc),
+                            new Point(selectedStatisticList.Location.X + widthDiff, selectedStatisticList.Location.Y));
 
-                    filterCorrelCoeffsButton.Invoke(new Action<Point>((loc) => filterCorrelCoeffsButton.Location = loc),
-                       new Point(filterCorrelCoeffsButton.Location.X + widthDiff, filterCorrelCoeffsButton.Location.Y));
+                        selectStatisticLabel.Invoke(new Action<Point>((loc) => selectStatisticLabel.Location = loc),
+                            new Point(selectStatisticLabel.Location.X + widthDiff, selectStatisticLabel.Location.Y));
 
-                    returnCoeffs.Invoke(new Action<Point>((loc) => returnCoeffs.Location = loc),
-                       new Point(returnCoeffs.Location.X + widthDiff, returnCoeffs.Location.Y));
+                        allStatisticList.Invoke(new Action<Size>((size) => allStatisticList.Size = size),
+                            new Size(allStatisticList.Width, allTabs.Height - 113));
 
-                    resultCorrelationCoefficients.Invoke(new Action<Size>((size) => resultCorrelationCoefficients.Size = size),
-                        new Size(resultCorrelationCoefficients.Width + widthDiff, resultCorrelationCoefficients.Height + heightDiff));
-                } 
+                        allStatisticList.Invoke(new Action<Point>((loc) => allStatisticList.Location = loc),
+                            new Point(allStatisticList.Location.X + widthDiff, allStatisticList.Location.Y));
+
+                        allStatisticLabel.Invoke(new Action<Point>((loc) => allStatisticLabel.Location = loc),
+                            new Point(allStatisticLabel.Location.X + widthDiff, allStatisticLabel.Location.Y));
+
+                        toSelectList.Invoke(new Action<Point>((loc) => toSelectList.Location = loc),
+                            new Point(toSelectList.Location.X + widthDiff, toSelectList.Location.Y));
+
+                        toAllList.Invoke(new Action<Point>((loc) => toAllList.Location = loc),
+                            new Point(toAllList.Location.X + widthDiff, toAllList.Location.Y));
+
+                        allToAllList.Invoke(new Action<Point>((loc) => allToAllList.Location = loc),
+                            new Point(allToAllList.Location.X + widthDiff, allToAllList.Location.Y));
+
+                        allToSelectList.Invoke(new Action<Point>((loc) => allToSelectList.Location = loc),
+                            new Point(allToSelectList.Location.X + widthDiff, allToSelectList.Location.Y));
+
+                        calcDeepLevelsButton.Invoke(new Action<Point>((loc) => calcDeepLevelsButton.Location = loc),
+                            new Point(calcDeepLevelsButton.Location.X, calcDeepLevelsButton.Location.Y + heightDiff));
+
+                        deepLevelInfo.Invoke(new Action<Size>((size) => deepLevelInfo.Size = size),
+                            new Size(deepLevelInfo.Width, calcDeepLevelsButton.Location.Y - deepLevelInfo.Location.Y - 22));
+
+
+                        // tab4
+                        thresholdCorrCoeffLabel.Invoke(new Action<Point>((loc) => thresholdCorrCoeffLabel.Location = loc),
+                            new Point(thresholdCorrCoeffLabel.Location.X + widthDiff, thresholdCorrCoeffLabel.Location.Y));
+
+                        thresholdCorrCoeff.Invoke(new Action<Point>((loc) => thresholdCorrCoeff.Location = loc),
+                            new Point(thresholdCorrCoeff.Location.X + widthDiff, thresholdCorrCoeff.Location.Y));
+
+                        filterCorrelCoeffsButton.Invoke(new Action<Point>((loc) => filterCorrelCoeffsButton.Location = loc),
+                           new Point(filterCorrelCoeffsButton.Location.X + widthDiff, filterCorrelCoeffsButton.Location.Y));
+
+                        returnCoeffs.Invoke(new Action<Point>((loc) => returnCoeffs.Location = loc),
+                           new Point(returnCoeffs.Location.X + widthDiff, returnCoeffs.Location.Y));
+
+                        resultCorrelationCoefficients.Invoke(new Action<Size>((size) => resultCorrelationCoefficients.Size = size),
+                            new Size(resultCorrelationCoefficients.Width + widthDiff, resultCorrelationCoefficients.Height + heightDiff));
+
+                        labelCalcCorrelDeepLevel.Invoke(new Action<Point>((loc) => labelCalcCorrelDeepLevel.Location = loc),
+                            new Point(labelCalcCorrelDeepLevel.Location.X + widthDiff, labelCalcCorrelDeepLevel.Location.Y + heightDiff));
+
+                        labelCalcCorrelDone.Invoke(new Action<Point>((loc) => labelCalcCorrelDone.Location = loc),
+                            new Point(labelCalcCorrelDone.Location.X + widthDiff, labelCalcCorrelDone.Location.Y + heightDiff));
+
+
+                        isResizeNeeded = false;
+                    }
+                }
             }
         }
+
+        
     }
 }
